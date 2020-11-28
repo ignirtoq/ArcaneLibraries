@@ -1,0 +1,20 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        " B ",
+        "G G",
+        " G "
+    ],
+    "key": {
+        "B": {
+            "item": "minecraft:oak_button"
+        },
+        "G": {
+            "item": "minecraft:glass_pane"
+        }
+    },
+    "result": {
+        "item": "arcane_libraries:ink_vial",
+        "count": 1
+    }
+}

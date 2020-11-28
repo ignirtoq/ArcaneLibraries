@@ -14,7 +14,7 @@
   },
 
   "license": "MIT",
-  "icon": "assets/modid/icon.png",
+  "icon": "assets/arcane-libraries/icon.png",
 
   "environment": "*",
   "entrypoints": {
