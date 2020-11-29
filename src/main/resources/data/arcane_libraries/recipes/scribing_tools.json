@@ -1,0 +1,18 @@
+{
+    "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+        {
+            "item": "arcane_libraries:ink_vial"
+        },
+        {
+            "item": "minecraft:lapis_lazuli"
+        },
+        {
+            "item": "minecraft:feather"
+        }
+    ],
+    "result": {
+        "item": "arcane_libraries:scribing_tools",
+        "count": 1
+    }
+}

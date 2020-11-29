@@ -7,7 +7,7 @@
     ],
     "key": {
         "B": {
-            "item": "minecraft:oak_button"
+            "tag": "minecraft:wooden_buttons"
         },
         "G": {
             "item": "minecraft:glass_pane"

@@ -1,0 +1,18 @@
+{
+    "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+        {
+            "item": "arcane_libraries:scribing_tools"
+        },
+        {
+            "tag": "minecraft:carpets"
+        },
+        {
+            "item": "minecraft:paper"
+        }
+    ],
+    "result": {
+        "item": "arcane_libraries:arcane_tome",
+        "count": 1
+    }
+}
