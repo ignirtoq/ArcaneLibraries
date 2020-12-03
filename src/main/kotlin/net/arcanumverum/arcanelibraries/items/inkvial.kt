@@ -1,4 +1,4 @@
-package net.arcanumverum.arcanelibraries.inkvial
+package net.arcanumverum.arcanelibraries.items
 
 import net.minecraft.item.Item
 
