@@ -14,9 +14,10 @@ import net.arcanumverum.arcanelibraries.items.BaseTomeItem
 const val NBT_TAG_INVENTORY = "arcanelibraries_inventory"
 
 
-class TomeInventory(tome: ItemStack) : Inventory {
+class TomeInventory(tome: ItemStack, max_stack_size: Int = 3 * 7 * 7) : Inventory {
     val tome = tome
     val item_stacks = deserialize(tome.getOrCreateTag().getCompound(NBT_TAG_INVENTORY), tome.getItem() as BaseTomeItem)
+    val max_stack_size = max_stack_size
 
     override fun onClose(player: PlayerEntity) {
         tome.getOrCreateTag().put(NBT_TAG_INVENTORY, serialize(item_stacks))
@@ -24,6 +25,7 @@ class TomeInventory(tome: ItemStack) : Inventory {
 
     override fun canPlayerUse(player: PlayerEntity): Boolean = tome.getItem() is BaseTomeItem 
     override fun clear() = item_stacks.clear()
+    override fun getMaxCountPerStack(): Int = max_stack_size
     override fun getStack(slot: Int): ItemStack = item_stacks.get(slot)
     override fun isEmpty(): Boolean = item_stacks.isEmpty()
     override fun markDirty() = Unit

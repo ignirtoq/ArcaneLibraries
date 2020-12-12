@@ -56,7 +56,7 @@ class TomeScreenHandlerFactory(tome: ItemStack) : NamedScreenHandlerFactory {
 }
 
 
-class TomeScreenHandler(sync_id: Int, inv: PlayerInventory, tome: ItemStack) 
+class TomeScreenHandler(sync_id: Int, inv: PlayerInventory, tome: ItemStack)
   : ScreenHandler(Screens.TOME_SCREEN_HANDLER, sync_id) {
     val tome_inventory = TomeInventory(tome)
 
@@ -81,15 +81,17 @@ class TomeScreenHandler(sync_id: Int, inv: PlayerInventory, tome: ItemStack)
         val one_column = num_slots <= TOME_SLOTS_PER_COLUMN
 
         for (slot in 0 until min(num_slots, TOME_SLOTS_PER_COLUMN)) {
-            addSlot(Slot(tome_inventory, slot,
-                         TOME_FIRST_LEFT_SLOT.first, TOME_FIRST_LEFT_SLOT.second + SLOT_HEIGHT * slot))
+            addSlot(TomeSlot(
+                tome_inventory, slot,
+                TOME_FIRST_LEFT_SLOT.first, TOME_FIRST_LEFT_SLOT.second + SLOT_HEIGHT * slot))
         }
 
         if (one_column) return;
 
         for (slot in TOME_SLOTS_PER_COLUMN until num_slots) {
-            addSlot(Slot(tome_inventory, slot,
-                         TOME_FIRST_RIGHT_SLOT.first, TOME_FIRST_RIGHT_SLOT.second + SLOT_HEIGHT * slot))
+            addSlot(TomeSlot(
+                tome_inventory, slot,
+                TOME_FIRST_RIGHT_SLOT.first, TOME_FIRST_RIGHT_SLOT.second + SLOT_HEIGHT * slot))
         }
     }
 
@@ -109,6 +111,30 @@ class TomeScreenHandler(sync_id: Int, inv: PlayerInventory, tome: ItemStack)
         for (col: Int in 0 until 9) {
             addSlot(Slot(inv, col, FIRST_SLOT_X + col*SLOT_WIDTH, FIRST_SLOT_Y))
         }
+    }
+
+    override fun transferSlot(player: PlayerEntity, invSlot: Int): ItemStack {
+        var newStack = ItemStack.EMPTY;
+        val slot = this.slots.get(invSlot);
+        if (slot != null && slot.hasStack()) {
+            val originalStack = slot.getStack();
+            newStack = originalStack.copy();
+            if (invSlot < tome_inventory.size()) {
+                if (!this.insertItem(originalStack, tome_inventory.size(), slots.size, true)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (!this.insertItem(originalStack, 0, tome_inventory.size(), false)) {
+                return ItemStack.EMPTY;
+            }
+
+            if (originalStack.isEmpty()) {
+                slot.setStack(ItemStack.EMPTY);
+            } else {
+                slot.markDirty();
+            }
+        }
+
+        return newStack;
     }
 }
 
@@ -137,4 +163,11 @@ class TomeScreen(handler: TomeScreenHandler, inv: PlayerInventory, title: Text)
         super.render(matrices, mouseX, mouseY, delta)
         drawMouseoverTooltip(matrices, mouseX, mouseY)
     }
+}
+
+
+class TomeSlot(inv: TomeInventory, index: Int, x: Int, y: Int) : Slot(inv, index, x, y) {
+    val inv = inv
+    override fun getMaxItemCount() = inv.getMaxCountPerStack()
+    override fun getMaxItemCount(stack: ItemStack) = inv.getMaxCountPerStack()
 }
