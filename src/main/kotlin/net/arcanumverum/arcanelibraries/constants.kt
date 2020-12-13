@@ -6,6 +6,17 @@ object Constants {
     const val MOD_ID = "arcane_libraries"
     const val MOD_NAME = "ArcaneLibraries"
 
+    // Fluid registry paths
+    const val INK_FLUID_BLOCK_PATH = "ink"
+    const val STILL_INK_FLUID_PATH = "ink"
+    const val FLOWING_INK_FLUID_PATH = "flowing_ink"
+    const val INK_FLUID_BUCKET_PATH = "ink_bucket"
+
+    val INK_FLUID_BLOCK_IDENTIFIER = Identifier(MOD_ID, INK_FLUID_BLOCK_PATH)
+    val STILL_INK_IDENTIFIER = Identifier(MOD_ID, STILL_INK_FLUID_PATH)
+    val FLOWING_INK_IDENTIFIER = Identifier(MOD_ID, FLOWING_INK_FLUID_PATH)
+    val INK_BUCKET_IDENTIFIER = Identifier(MOD_ID, INK_FLUID_BUCKET_PATH)
+
     // Item registry paths
     const val INK_VIAL_PATH = "ink_vial"
     const val SCRIBING_TOOLS_PATH = "scribing_tools"

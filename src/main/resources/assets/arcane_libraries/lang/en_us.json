@@ -1,5 +1,7 @@
 {
+    "block.arcane_libraries.ink": "Ink",
     "item.arcane_libraries.ink_vial": "Ink Vial",
     "item.arcane_libraries.scribing_tools": "Scribing Tools",
-    "item.arcane_libraries.arcane_tome": "Arcane Tome"
+    "item.arcane_libraries.arcane_tome": "Arcane Tome",
+    "item.arcane_libraries.ink_bucket": "Ink Bucket"
 }

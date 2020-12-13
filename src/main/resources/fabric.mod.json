@@ -9,8 +9,8 @@
     "ignirtoq"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "",
+    "sources": "https://github.com/ignirtoq/ArcaneLibraries"
   },
 
   "license": "MIT",
@@ -20,7 +20,7 @@
   "entrypoints": {
     "main": [
       "net.arcanumverum.arcanelibraries.InitKt::init",
-      "net.arcanumverum.arcanelibraries.InitKt::init_client"
+      "net.arcanumverum.arcanelibraries.InitKt::initClient"
     ]
   },
   "depends": {
