@@ -14,10 +14,8 @@ import net.arcanumverum.arcanelibraries.items.BaseTomeItem
 const val NBT_TAG_INVENTORY = "arcanelibraries_inventory"
 
 
-class TomeInventory(tome: ItemStack, max_stack_size: Int = 3 * 7 * 7) : Inventory {
-    val tome = tome
+class TomeInventory(private val tome: ItemStack, private val max_stack_size: Int = 3 * 7 * 7) : Inventory {
     val item_stacks = deserialize(tome.getOrCreateTag().getCompound(NBT_TAG_INVENTORY), tome.getItem() as BaseTomeItem)
-    val max_stack_size = max_stack_size
 
     override fun onClose(player: PlayerEntity) {
         tome.getOrCreateTag().put(NBT_TAG_INVENTORY, serialize(item_stacks))
@@ -36,7 +34,7 @@ class TomeInventory(tome: ItemStack, max_stack_size: Int = 3 * 7 * 7) : Inventor
         item_stacks.set(slot, stack)
     }
 
-    override fun size(): Int = (tome.getItem() as BaseTomeItem).size()
+    override fun size(): Int = (tome.item as BaseTomeItem).size()
 
 }
 
@@ -44,7 +42,7 @@ class TomeInventory(tome: ItemStack, max_stack_size: Int = 3 * 7 * 7) : Inventor
 fun serialize(item_stacks: DefaultedList<ItemStack>): CompoundTag {
     val tag = CompoundTag()
     for (slot in 0 until item_stacks.size) {
-        tag.put("slot$slot", item_stacks.get(slot).toTag(CompoundTag()))
+        tag.put("slot$slot", item_stacks[slot].toTag(CompoundTag()))
     }
     return tag
 }
@@ -53,7 +51,7 @@ fun serialize(item_stacks: DefaultedList<ItemStack>): CompoundTag {
 fun deserialize(tag: CompoundTag, tome_item: BaseTomeItem): DefaultedList<ItemStack> {
     val item_stacks = DefaultedList.ofSize(tome_item.size(), ItemStack.EMPTY)
     for (slot in 0 until item_stacks.size) {
-        item_stacks.set(slot, ItemStack.fromTag(tag.getCompound("slot$slot")))
+        item_stacks[slot] = ItemStack.fromTag(tag.getCompound("slot$slot"))
     }
     return item_stacks
 }

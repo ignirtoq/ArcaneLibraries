@@ -23,6 +23,7 @@
       "net.arcanumverum.arcanelibraries.InitKt::initClient"
     ]
   },
+  "accessWidener": "arcane_libraries.accesswidener",
   "depends": {
     "fabricloader": ">=0.8.7",
     "fabric": "*",

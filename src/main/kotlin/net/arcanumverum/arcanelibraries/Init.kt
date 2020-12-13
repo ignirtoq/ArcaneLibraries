@@ -64,7 +64,9 @@ object Items {
    val INK_BUCKET: BucketItem = Registry.register(
        Registry.ITEM,
        Constants.INK_BUCKET_IDENTIFIER,
-       BucketItem(Fluids.STILL_INK, Item.Settings().recipeRemainder(MinecraftItems.BUCKET).maxCount(1)))
+       BucketItem(
+           Fluids.STILL_INK,
+           Item.Settings().recipeRemainder(MinecraftItems.BUCKET).group(ItemGroup.MISC).maxCount(1)))
 }
 
 object Screens {

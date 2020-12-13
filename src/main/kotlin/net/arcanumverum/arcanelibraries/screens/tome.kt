@@ -166,8 +166,7 @@ class TomeScreen(handler: TomeScreenHandler, inv: PlayerInventory, title: Text)
 }
 
 
-class TomeSlot(inv: TomeInventory, index: Int, x: Int, y: Int) : Slot(inv, index, x, y) {
-    val inv = inv
+class TomeSlot(val inv: TomeInventory, index: Int, x: Int, y: Int) : Slot(inv, index, x, y) {
     override fun getMaxItemCount() = inv.getMaxCountPerStack()
     override fun getMaxItemCount(stack: ItemStack) = inv.getMaxCountPerStack()
 }
