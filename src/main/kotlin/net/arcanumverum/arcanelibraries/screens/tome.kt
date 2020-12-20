@@ -230,6 +230,11 @@ class TomeScreen(handler: TomeScreenHandler, inv: PlayerInventory, title: Text)
         drawTexture(matrices, i, j, 0, 0, backgroundWidth, backgroundHeight)
     }
 
+    /* Override drawForeground to not render the player inventory title. */
+    override fun drawForeground(matrices: MatrixStack?, mouseX: Int, mouseY: Int) {
+        textRenderer.draw(matrices, title, titleX.toFloat(), titleY.toFloat(), 4210752)
+    }
+
     override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
         renderBackground(matrices)
         super.render(matrices, mouseX, mouseY, delta)
