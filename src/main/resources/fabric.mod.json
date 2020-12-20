@@ -4,17 +4,17 @@
   "version": "${version}",
 
   "name": "Arcane Libraries",
-  "description": "Mystical mass storage for the disorganized thaumaturge.",
+  "description": "Mystical storage for the disorganized thaumaturge.",
   "authors": [
     "ignirtoq"
   ],
   "contact": {
-    "homepage": "",
+    "homepage": "https://github.com/ignirtoq/ArcaneLibraries",
     "sources": "https://github.com/ignirtoq/ArcaneLibraries"
   },
 
   "license": "MIT",
-  "icon": "assets/arcane-libraries/icon.png",
+  "icon": "assets/arcane_libraries/textures/item/scribing_tools.png",
 
   "environment": "*",
   "entrypoints": {
