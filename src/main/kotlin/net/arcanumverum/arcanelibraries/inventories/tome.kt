@@ -43,11 +43,7 @@ class TomeInventory(private val tome: ItemStack, private val max_stack_size: Int
 fun serialize(itemStacks: DefaultedList<ItemStack>): CompoundTag {
     val tag = CompoundTag()
     for (slot in 0 until itemStacks.size) {
-        val count = itemStacks[slot].count
-        val stackType = itemStacks[slot].copy()
-        stackType.count = 1
-        tag.put("slot${slot}type", stackType.toTag(CompoundTag()))
-        tag.putInt("slot${slot}count", count)
+        tag.put("slot${slot}", itemStacks[slot].toTag(CompoundTag()))
     }
     return tag
 }
@@ -56,8 +52,7 @@ fun serialize(itemStacks: DefaultedList<ItemStack>): CompoundTag {
 fun deserialize(tag: CompoundTag, tome_item: BaseTomeItem): DefaultedList<ItemStack> {
     val itemStacks = DefaultedList.ofSize(tome_item.size(), ItemStack.EMPTY)
     for (slot in 0 until itemStacks.size) {
-        itemStacks[slot] = ItemStack.fromTag(tag.getCompound("slot${slot}type"))
-        itemStacks[slot].count = tag.getInt("slot${slot}count")
+        itemStacks[slot] = ItemStack.fromTag(tag.getCompound("slot${slot}"))
     }
     return itemStacks
 }

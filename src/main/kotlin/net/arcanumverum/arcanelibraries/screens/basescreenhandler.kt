@@ -217,7 +217,8 @@ abstract class BaseScreenHandler<T : ScreenHandler?>(screenHandlerType: ScreenHa
                         slot.stack = ItemStack.EMPTY
                         playerInventory.cursorStack = ItemStack.EMPTY
                     } else {
-                        val q = if (clickType == 0) slotStack.count else (slotStack.count + 1) / 2
+                        val fullCount = slotStack.count.coerceAtMost(slotStack.item.maxCount)
+                        val q = if (clickType == 0) fullCount else (fullCount + 1) / 2
                         playerInventory.cursorStack = slot.takeStack(q)
                         if (slotStack.isEmpty) {
                             slot.stack = ItemStack.EMPTY
@@ -225,13 +226,11 @@ abstract class BaseScreenHandler<T : ScreenHandler?>(screenHandlerType: ScreenHa
                         slot.onTakeItem(playerEntity, playerInventory.cursorStack)
                     }
                 } else if (slot.canInsert(cursorStack)) {
+                    // Clicked slot has a stack, cursor has a stack, and stacks are compatible.
                     if (canStacksCombine(slotStack, cursorStack)) {
                         var q = if (clickType == 0) cursorStack.count else 1
                         if (q > slot.getMaxItemCount(cursorStack) - slotStack.count) {
                             q = slot.getMaxItemCount(cursorStack) - slotStack.count
-                        }
-                        if (q > cursorStack.maxCount - slotStack.count) {
-                            q = cursorStack.maxCount - slotStack.count
                         }
                         cursorStack.decrement(q)
                         slotStack.increment(q)

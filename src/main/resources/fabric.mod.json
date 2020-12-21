@@ -26,6 +26,9 @@
       "net.arcanumverum.arcanelibraries.InitKt::initClient"
     ]
   },
+  "mixins": [
+    "arcane-libraries.mixins.json"
+  ],
   "accessWidener": "arcane_libraries.accesswidener",
   "depends": {
     "fabricloader": ">=0.8.7",
