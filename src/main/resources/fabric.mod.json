@@ -6,7 +6,8 @@
   "name": "Arcane Libraries",
   "description": "Mystical storage for the disorganized thaumaturge.",
   "authors": [
-    "ignirtoq"
+    "ignirtoq",
+    "djacu"
   ],
   "contact": {
     "homepage": "https://github.com/ignirtoq/ArcaneLibraries",
