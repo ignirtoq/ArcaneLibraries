@@ -20,7 +20,9 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.arcanumverum.arcanelibraries.InitKt::init",
+      "net.arcanumverum.arcanelibraries.InitKt::init"
+    ],
+    "client": [
       "net.arcanumverum.arcanelibraries.InitKt::initClient"
     ]
   },
