@@ -15,9 +15,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class ItemStackSerializationMixin {
     @Shadow private int count;
 
-    @Shadow
-    public abstract int getCount();
-
     @Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/nbt/CompoundTag;)V")
     void onDeserialization(CompoundTag tag, CallbackInfo callbackInformation) {
         if (tag.contains("countInteger")) {
