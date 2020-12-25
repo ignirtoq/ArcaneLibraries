@@ -8,8 +8,189 @@ import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.screen.slot.Slot
 import net.minecraft.screen.slot.SlotActionType
 
-abstract class BaseScreenHandler<T : ScreenHandler?>(screenHandlerType: ScreenHandlerType<T>?, syncId: Int)
-: ScreenHandler(screenHandlerType, syncId) {
+interface PickUpAction {
+    fun click(
+        slot: Slot,
+        clickType: Int,
+        playerEntity: PlayerEntity?
+    ): ItemStack {
+        val playerInventory = playerEntity!!.inventory
+        var itemStack = ItemStack.EMPTY
+        val slotStack = slot.stack
+        val cursorStack = playerInventory.cursorStack
+
+        if (!slotStack.isEmpty) {
+            itemStack = slotStack.copy()
+        }
+
+        if (slotStack.isEmpty) {
+            clickSlotEmpty(slot, cursorStack, clickType, playerEntity)
+        } else if (slot.canTakeItems(playerEntity)) {
+            clickSlotItemCursorItemPlayerAccessible(slot, cursorStack, clickType, playerEntity)
+        }
+        slot.markDirty()
+
+        return itemStack
+    }
+
+    fun clickSlotEmpty(
+        slot: Slot,
+        cursorStack: ItemStack,
+        clickType: Int,
+        playerEntity: PlayerEntity?,
+    ) {
+        if (cursorStack.isEmpty) return
+        if (!slot.canInsert(cursorStack)) return
+
+        var q = if (clickType == 0) cursorStack.count else 1
+
+        if (q > slot.getMaxItemCount(cursorStack)) {
+            q = slot.getMaxItemCount(cursorStack)
+        }
+        slot.stack = cursorStack.split(q)
+    }
+
+    fun clickSlotItemCursorEmpty(
+        slot: Slot,
+        clickType: Int,
+        playerEntity: PlayerEntity?
+    ) {
+        val slotStack = slot.stack
+        val playerInventory = playerEntity!!.inventory
+        val fullCount = slotStack.count.coerceAtMost(slotStack.item.maxCount)
+        val amount = if (clickType == 0) fullCount else (fullCount + 1) / 2
+
+        playerInventory.cursorStack = slot.takeStack(amount)
+        slot.onTakeItem(playerEntity, playerInventory.cursorStack)
+    }
+
+    fun clickSlotItemCursorItemPlayerAccessible(
+        slot: Slot,
+        cursorStack: ItemStack,
+        clickType: Int,
+        playerEntity: PlayerEntity?,
+    ) {
+        val playerInventory = playerEntity!!.inventory
+        var slotStack = slot.stack
+
+        if (cursorStack.isEmpty) {
+            clickSlotItemCursorEmpty(slot, clickType, playerEntity)
+        } else if (slot.canInsert(cursorStack)) {
+            // Clicked slot has a stack, cursor has a stack, and stacks are compatible.
+            if (ScreenHandler.canStacksCombine(slotStack, cursorStack)) {
+                var q = if (clickType == 0) cursorStack.count else 1
+                if (q > slot.getMaxItemCount(cursorStack) - slotStack.count) {
+                    q = slot.getMaxItemCount(cursorStack) - slotStack.count
+                }
+                cursorStack.decrement(q)
+                slotStack.increment(q)
+            } else if (cursorStack.count <= slot.getMaxItemCount(cursorStack)) {
+                slot.stack = cursorStack
+                playerInventory.cursorStack = slotStack
+            }
+        } else if (cursorStack.maxCount > 1 && ScreenHandler.canStacksCombine(slotStack, cursorStack) && !slotStack.isEmpty) {
+            val q = slotStack.count
+            if (q + cursorStack.count <= cursorStack.maxCount) {
+                cursorStack.increment(q)
+                slotStack = slot.takeStack(q)
+                if (slotStack.isEmpty) {
+                    slot.stack = ItemStack.EMPTY
+                }
+                slot.onTakeItem(playerEntity, playerInventory.cursorStack)
+            }
+        }
+    }
+}
+
+class DefaultPickUpAction : PickUpAction
+
+interface SwapAction {
+    fun click(
+        slot: Slot,
+        clickType: Int,
+        playerEntity: PlayerEntity?
+    ) {
+        val playerInventory = playerEntity!!.inventory
+        val playerStack = playerInventory.getStack(clickType)
+        val slotStack = slot.stack
+
+        if (playerStack.isEmpty) {
+            clickWithEmptyStack(slot, clickType, playerEntity)
+        } else if (slotStack.isEmpty) {
+            clickEmptySlot(slot, clickType, playerEntity, playerStack)
+        } else if (slot.canTakeItems(playerEntity) && slot.canInsert(playerStack)) {
+            clickWithItemsPlayerAccessible(slot, clickType, playerEntity, playerStack)
+        }
+    }
+
+    fun clickWithEmptyStack(
+        slot: Slot,
+        clickType: Int,
+        playerEntity: PlayerEntity?,
+    ) {
+        val playerInventory = playerEntity!!.inventory
+        val wrappedSlot = slot as WrapperSlot
+        val slotStack = slot.stack
+
+        if (slot.canTakeItems(playerEntity)) {
+            playerInventory.setStack(clickType, slotStack)
+            wrappedSlot.publicOnTake(slotStack.count)
+            slot.stack = ItemStack.EMPTY
+            slot.onTakeItem(playerEntity, slotStack)
+        }
+    }
+
+    fun clickEmptySlot(
+        slot: Slot,
+        clickType: Int,
+        playerEntity: PlayerEntity?,
+        playerStack: ItemStack,
+    ) {
+        val playerInventory = playerEntity!!.inventory
+
+        if (slot.canInsert(playerStack)) {
+            val q = slot.getMaxItemCount(playerStack)
+            if (playerStack.count > q) {
+                slot.stack = playerStack.split(q)
+            } else {
+                slot.stack = playerStack
+                playerInventory.setStack(clickType, ItemStack.EMPTY)
+            }
+        }
+    }
+
+    fun clickWithItemsPlayerAccessible(
+        slot: Slot,
+        clickType: Int,
+        playerEntity: PlayerEntity?,
+        playerStack: ItemStack,
+    ) {
+        val playerInventory = playerEntity!!.inventory
+        val slotStack = slot.stack
+        val q = slot.getMaxItemCount(playerStack)
+
+        if (playerStack.count > q) {
+            slot.stack = playerStack.split(q)
+            slot.onTakeItem(playerEntity, slotStack)
+            if (!playerInventory.insertStack(slotStack)) {
+                playerEntity.dropItem(slotStack, true)
+            }
+        } else {
+            slot.stack = playerStack
+            playerInventory.setStack(clickType, slotStack)
+            slot.onTakeItem(playerEntity, slotStack)
+        }
+    }
+}
+
+class DefaultSwapAction : SwapAction
+
+abstract class BaseScreenHandler<T : ScreenHandler?>(
+    screenHandlerType: ScreenHandlerType<T>?,
+    syncId: Int,
+    private val pickUpAction: PickUpAction = DefaultPickUpAction(),
+    private val swapAction: SwapAction = DefaultSwapAction(),
+) : ScreenHandler(screenHandlerType, syncId) {
     private var quickCraftButton: Int? = 0
     private var quickCraftStage: Int = -1
     private val quickCraftSlots = HashSet<Slot>()
@@ -123,44 +304,15 @@ abstract class BaseScreenHandler<T : ScreenHandler?>(screenHandlerType: ScreenHa
 
     protected fun doSwap(slotIndex: Int, clickType: Int, playerEntity: PlayerEntity?): ItemStack {
         val playerInventory = playerEntity!!.inventory
-        val slot = slots[slotIndex] as WrapperSlot
+        val slot = slots[slotIndex]
         val playerStack = playerInventory.getStack(clickType)
         val slotStack = slot.stack
 
         // Sanity check
         if (playerStack.isEmpty && slotStack.isEmpty) return ItemStack.EMPTY
 
-        if (playerStack.isEmpty) {
-            if (slot.canTakeItems(playerEntity)) {
-                playerInventory.setStack(clickType, slotStack)
-                slot.publicOnTake(slotStack.count)
-                slot.stack = ItemStack.EMPTY
-                slot.onTakeItem(playerEntity, slotStack)
-            }
-        } else if (slotStack.isEmpty) {
-            if (slot.canInsert(playerStack)) {
-                val q = slot.getMaxItemCount(playerStack)
-                if (playerStack.count > q) {
-                    slot.stack = playerStack.split(q)
-                } else {
-                    slot.stack = playerStack
-                    playerInventory.setStack(clickType, ItemStack.EMPTY)
-                }
-            }
-        } else if (slot.canTakeItems(playerEntity) && slot.canInsert(playerStack)) {
-            val q = slot.getMaxItemCount(playerStack)
-            if (playerStack.count > q) {
-                slot.stack = playerStack.split(q)
-                slot.onTakeItem(playerEntity, slotStack)
-                if (!playerInventory.insertStack(slotStack)) {
-                    playerEntity.dropItem(slotStack, true)
-                }
-            } else {
-                slot.stack = playerStack
-                playerInventory.setStack(clickType, slotStack)
-                slot.onTakeItem(playerEntity, slotStack)
-            }
-        }
+        swapAction.click(slot, clickType, playerEntity)
+
         return ItemStack.EMPTY
     }
 
@@ -186,7 +338,6 @@ abstract class BaseScreenHandler<T : ScreenHandler?>(screenHandlerType: ScreenHa
     }
 
     protected fun doPickUp(slotIndex: Int, clickType: Int, playerEntity: PlayerEntity?): ItemStack {
-        val playerInventory = playerEntity!!.inventory
         var itemStack = ItemStack.EMPTY
 
         if (!(clickType == 0 || clickType == 1)) return itemStack
@@ -194,64 +345,10 @@ abstract class BaseScreenHandler<T : ScreenHandler?>(screenHandlerType: ScreenHa
         if (slotIndex < 0) return itemStack
 
         val slot = slots[slotIndex]
-
         if (slot != null) {
-            var slotStack = slot.stack
-            val cursorStack = playerInventory.cursorStack
-
-            if (!slotStack.isEmpty) {
-                itemStack = slotStack.copy()
-            }
-
-            if (slotStack.isEmpty) {
-                if (!cursorStack.isEmpty && slot.canInsert(cursorStack)) {
-                    var q = if (clickType == 0) cursorStack.count else 1
-                    if (q > slot.getMaxItemCount(cursorStack)) {
-                        q = slot.getMaxItemCount(cursorStack)
-                    }
-                    slot.stack = cursorStack.split(q)
-                }
-            } else if (slot.canTakeItems(playerEntity)) {
-                if (cursorStack.isEmpty) {
-                    if (slotStack.isEmpty) {
-                        slot.stack = ItemStack.EMPTY
-                        playerInventory.cursorStack = ItemStack.EMPTY
-                    } else {
-                        val fullCount = slotStack.count.coerceAtMost(slotStack.item.maxCount)
-                        val q = if (clickType == 0) fullCount else (fullCount + 1) / 2
-                        playerInventory.cursorStack = slot.takeStack(q)
-                        if (slotStack.isEmpty) {
-                            slot.stack = ItemStack.EMPTY
-                        }
-                        slot.onTakeItem(playerEntity, playerInventory.cursorStack)
-                    }
-                } else if (slot.canInsert(cursorStack)) {
-                    // Clicked slot has a stack, cursor has a stack, and stacks are compatible.
-                    if (canStacksCombine(slotStack, cursorStack)) {
-                        var q = if (clickType == 0) cursorStack.count else 1
-                        if (q > slot.getMaxItemCount(cursorStack) - slotStack.count) {
-                            q = slot.getMaxItemCount(cursorStack) - slotStack.count
-                        }
-                        cursorStack.decrement(q)
-                        slotStack.increment(q)
-                    } else if (cursorStack.count <= slot.getMaxItemCount(cursorStack)) {
-                        slot.stack = cursorStack
-                        playerInventory.cursorStack = slotStack
-                    }
-                } else if (cursorStack.maxCount > 1 && canStacksCombine(slotStack, cursorStack) && !slotStack.isEmpty) {
-                    val q = slotStack.count
-                    if (q + cursorStack.count <= cursorStack.maxCount) {
-                        cursorStack.increment(q)
-                        slotStack = slot.takeStack(q)
-                        if (slotStack.isEmpty) {
-                            slot.stack = ItemStack.EMPTY
-                        }
-                        slot.onTakeItem(playerEntity, playerInventory.cursorStack)
-                    }
-                }
-            }
-            slot.markDirty()
+            itemStack = pickUpAction.click(slot, clickType, playerEntity)
         }
+
         return itemStack
     }
 
