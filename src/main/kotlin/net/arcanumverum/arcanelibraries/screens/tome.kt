@@ -20,6 +20,7 @@ import net.arcanumverum.arcanelibraries.Screens
 import net.arcanumverum.arcanelibraries.inventories.TomeInventory
 import net.arcanumverum.arcanelibraries.items.BaseTomeItem
 import net.arcanumverum.arcanelibraries.screens.BaseScreenHandler
+import net.minecraft.inventory.Inventory
 
 
 val TEXTURE = Identifier(Constants.MOD_ID, Constants.TOME_GUI_TEXTURE_PATH)
@@ -33,7 +34,6 @@ val TOME_FIRST_HOTBAR_SLOT = Pair(40, 232)
 const val TOME_SLOTS_PER_COLUMN = 7
 
 const val SLOT_HEIGHT = 18
-const val SLOT_WIDTH = 18
 
 fun getTome(player: PlayerEntity): ItemStack {
     val mainHand = player.mainHandStack
@@ -60,11 +60,9 @@ class TomeScreenHandler(sync_id: Int, inv: PlayerInventory, tome: ItemStack)
 
     init {
         addTomeSlots()
-        addPlayerInventorySlots(inv)
-        addPlayerHotbarSlots(inv)
+        addPlayerInventorySlots(inv, TOME_FIRST_PLAYER_SLOT.first, TOME_FIRST_PLAYER_SLOT.second)
+        addPlayerHotbarSlots(inv, TOME_FIRST_HOTBAR_SLOT.first, TOME_FIRST_HOTBAR_SLOT.second)
     }
-
-    override fun canUse(player: PlayerEntity): Boolean = true
 
     override fun close(player: PlayerEntity) {
         tomeInventory.onClose(player)
@@ -91,47 +89,7 @@ class TomeScreenHandler(sync_id: Int, inv: PlayerInventory, tome: ItemStack)
         }
     }
 
-    private fun addPlayerInventorySlots(inv: PlayerInventory) {
-        val FIRST_SLOT_X = TOME_FIRST_PLAYER_SLOT.first
-        val FIRST_SLOT_Y = TOME_FIRST_PLAYER_SLOT.second
-        for (row: Int in 0 until 3) {
-            for (col: Int in 0 until 9) {
-                addSlot(Slot(inv, col + row*9 + 9, FIRST_SLOT_X + col*SLOT_WIDTH, FIRST_SLOT_Y + row*SLOT_HEIGHT))
-            }
-        }
-    }
-
-    private fun addPlayerHotbarSlots(inv: PlayerInventory) {
-        val FIRST_SLOT_X = TOME_FIRST_HOTBAR_SLOT.first
-        val FIRST_SLOT_Y = TOME_FIRST_HOTBAR_SLOT.second
-        for (col: Int in 0 until 9) {
-            addSlot(Slot(inv, col, FIRST_SLOT_X + col*SLOT_WIDTH, FIRST_SLOT_Y))
-        }
-    }
-
-    override fun transferSlot(player: PlayerEntity, invSlot: Int): ItemStack {
-        var newStack = ItemStack.EMPTY;
-        val slot = this.slots[invSlot];
-        if (slot != null && slot.hasStack()) {
-            val originalStack = slot.stack;
-            newStack = originalStack.copy();
-            if (invSlot < tomeInventory.size()) {
-                if (!this.insertItem(originalStack, tomeInventory.size(), slots.size, true)) {
-                    return ItemStack.EMPTY;
-                }
-            } else if (!this.insertItem(originalStack, 0, tomeInventory.size(), false)) {
-                return ItemStack.EMPTY;
-            }
-
-            if (originalStack.isEmpty) {
-                slot.stack = ItemStack.EMPTY;
-            } else {
-                slot.markDirty();
-            }
-        }
-
-        return newStack;
-    }
+    override fun getContainerInventory(): Inventory = tomeInventory
 
     override fun insertItem(insertingStack: ItemStack, startIndex: Int, endIndex: Int, fromLast: Boolean): Boolean {
         var bl = false

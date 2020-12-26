@@ -1,12 +1,16 @@
 package net.arcanumverum.arcanelibraries.screens
 
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.Inventory
 import net.minecraft.item.ItemStack
 import net.minecraft.screen.ScreenHandler
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.screen.slot.Slot
 import net.minecraft.screen.slot.SlotActionType
+
+const val SLOT_HEIGHT = 18
+const val SLOT_WIDTH = 18
 
 interface PickUpAction {
     fun click(
@@ -194,6 +198,8 @@ abstract class BaseScreenHandler<T : ScreenHandler?>(
     private var quickCraftButton: Int? = 0
     private var quickCraftStage: Int = -1
     private val quickCraftSlots = HashSet<Slot>()
+
+    abstract fun getContainerInventory(): Inventory
 
     override fun onSlotClick(
         slotIndex: Int,
@@ -431,6 +437,47 @@ abstract class BaseScreenHandler<T : ScreenHandler?>(
         sendContentUpdates()
 
         return ItemStack.EMPTY
+    }
+
+    protected fun addPlayerInventorySlots(inv: PlayerInventory, firstSlotX: Int, firstSlotY: Int) {
+        for (row: Int in 0 until 3) {
+            for (col: Int in 0 until 9) {
+                addSlot(Slot(inv, col + row*9 + 9, firstSlotX + col*SLOT_WIDTH, firstSlotY + row*SLOT_HEIGHT))
+            }
+        }
+    }
+
+    protected fun addPlayerHotbarSlots(inv: PlayerInventory, firstSlotX: Int, firstSlotY: Int) {
+        for (col: Int in 0 until 9) {
+            addSlot(Slot(inv, col, firstSlotX + col*SLOT_WIDTH, firstSlotY))
+        }
+    }
+
+    override fun canUse(player: PlayerEntity?): Boolean = true
+
+    override fun transferSlot(player: PlayerEntity?, invSlot: Int): ItemStack {
+        val invSize = getContainerInventory().size()
+        var newStack = ItemStack.EMPTY;
+        val slot = this.slots[invSlot];
+        if (slot != null && slot.hasStack()) {
+            val originalStack = slot.stack;
+            newStack = originalStack.copy();
+            if (invSlot < invSize) {
+                if (!this.insertItem(originalStack, invSize, slots.size, true)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (!this.insertItem(originalStack, 0, invSize, false)) {
+                return ItemStack.EMPTY;
+            }
+
+            if (originalStack.isEmpty) {
+                slot.stack = ItemStack.EMPTY;
+            } else {
+                slot.markDirty();
+            }
+        }
+
+        return newStack;
     }
 }
 

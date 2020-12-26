@@ -1,5 +1,7 @@
 package net.arcanumverum.arcanelibraries
 
+import net.arcanumverum.arcanelibraries.blocks.Bookcase
+import net.arcanumverum.arcanelibraries.blocks.BookcaseEntity
 import net.minecraft.block.Blocks as MinecraftBlocks
 import net.minecraft.block.FluidBlock
 import net.minecraft.client.MinecraftClient
@@ -38,21 +40,36 @@ import net.arcanumverum.arcanelibraries.fluids.InkFluid
 import net.arcanumverum.arcanelibraries.items.ArcaneTomeItem
 import net.arcanumverum.arcanelibraries.items.InkVialItem
 import net.arcanumverum.arcanelibraries.items.ScribingToolsItem
+import net.arcanumverum.arcanelibraries.screens.BookcaseScreen
+import net.arcanumverum.arcanelibraries.screens.BookcaseScreenHandler
 import net.arcanumverum.arcanelibraries.screens.tome.TomeScreen
 import net.arcanumverum.arcanelibraries.screens.tome.TomeScreenHandler
+import net.minecraft.block.entity.BlockEntityType
+import net.minecraft.item.BlockItem
 
 
 object Blocks {
-   val INK = Registry.register(
-       Registry.BLOCK,
-       Constants.INK_FLUID_BLOCK_IDENTIFIER,
-       object : FluidBlock(Fluids.STILL_INK, FabricBlockSettings.copy(MinecraftBlocks.WATER)){}
-   )
+    val BOOKCASE = Registry.register(
+        Registry.BLOCK,
+        Constants.BOOKCASE_BLOCK_IDENTIFIER,
+        Bookcase(FabricBlockSettings.copyOf(MinecraftBlocks.CHEST)))
+    val INK = Registry.register(
+        Registry.BLOCK,
+        Constants.INK_FLUID_BLOCK_IDENTIFIER,
+        object : FluidBlock(Fluids.STILL_INK, FabricBlockSettings.copy(MinecraftBlocks.WATER)){}
+    )
+}
+
+object BlockEntities {
+    val BOOKCASE_BLOCK_ENTITY = Registry.register(
+        Registry.BLOCK_ENTITY_TYPE,
+        Constants.BOOKCASE_BLOCK_IDENTIFIER,
+        BlockEntityType.Builder.create(::BookcaseEntity, Blocks.BOOKCASE).build(null))
 }
 
 object Fluids {
-   val STILL_INK: InkFluid.Still = Registry.register(Registry.FLUID, Constants.STILL_INK_IDENTIFIER, InkFluid.Still())
-   val FLOWING_INK: InkFluid.Flowing = Registry.register(Registry.FLUID, Constants.FLOWING_INK_IDENTIFIER, InkFluid.Flowing())
+    val STILL_INK: InkFluid.Still = Registry.register(Registry.FLUID, Constants.STILL_INK_IDENTIFIER, InkFluid.Still())
+    val FLOWING_INK: InkFluid.Flowing = Registry.register(Registry.FLUID, Constants.FLOWING_INK_IDENTIFIER, InkFluid.Flowing())
 }
 
 object Items {
@@ -67,11 +84,19 @@ object Items {
        BucketItem(
            Fluids.STILL_INK,
            Item.Settings().recipeRemainder(MinecraftItems.BUCKET).group(ItemGroup.MISC).maxCount(1)))
+
+    // Block items
+    val BOOKCASE_ITEM = Registry.register(
+        Registry.ITEM,
+        Constants.BOOKCASE_BLOCK_IDENTIFIER,
+        BlockItem(Blocks.BOOKCASE, Item.Settings().group(ItemGroup.DECORATIONS)))
 }
 
 object Screens {
     val TOME_SCREEN_HANDLER: ScreenHandlerType<TomeScreenHandler> = ScreenHandlerRegistry.registerSimple(
         Constants.ARCANE_TOME_IDENTIFIER, ::TomeScreenHandler)
+    val BOOKCASE_SCREEN_HANDLER: ScreenHandlerType<BookcaseScreenHandler> = ScreenHandlerRegistry.registerSimple(
+        Constants.BOOKCASE_BLOCK_IDENTIFIER, ::BookcaseScreenHandler)
 }
 
 fun loadItems() {
@@ -144,5 +169,6 @@ fun setupInk() {
 @Suppress("unused")
 fun initClient() {
     ScreenRegistry.register(Screens.TOME_SCREEN_HANDLER, ::TomeScreen)
+    ScreenRegistry.register(Screens.BOOKCASE_SCREEN_HANDLER, ::BookcaseScreen)
     setupInk()
 }

@@ -6,6 +6,11 @@ object Constants {
     const val MOD_ID = "arcane_libraries"
     const val MOD_NAME = "ArcaneLibraries"
 
+    // Block registry paths
+    const val BOOKCASE_BLOCK_PATH = "bookcase"
+
+    val BOOKCASE_BLOCK_IDENTIFIER = Identifier(MOD_ID, BOOKCASE_BLOCK_PATH)
+
     // Fluid registry paths
     const val INK_FLUID_BLOCK_PATH = "ink"
     const val STILL_INK_FLUID_PATH = "ink"
@@ -27,5 +32,6 @@ object Constants {
     val ARCANE_TOME_IDENTIFIER = Identifier(MOD_ID, ARCANE_TOME_PATH)
 
     // Texture paths
+    const val BOOKCASE_GUI_TEXTURE_PATH = "textures/gui/bookcase-with-inventory.png"
     const val TOME_GUI_TEXTURE_PATH = "textures/gui/tome-with-inventory.png"
 }
