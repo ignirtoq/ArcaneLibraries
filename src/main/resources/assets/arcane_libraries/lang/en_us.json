@@ -1,6 +1,9 @@
 {
     "block.arcane_libraries.ink": "Ink",
     "block.arcane_libraries.bookcase": "Bookcase",
+    "block.arcane_libraries.eldritch_log": "Eldritch Log",
+    "block.arcane_libraries.eldritch_planks": "Eldritch Planks",
+    "block.arcane_libraries.eldritch_slab": "Eldritch Slab",
     "item.arcane_libraries.ink_vial": "Ink Vial",
     "item.arcane_libraries.scribing_tools": "Scribing Tools",
     "item.arcane_libraries.arcane_tome": "Arcane Tome",

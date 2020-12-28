@@ -3,7 +3,6 @@ package net.arcanumverum.arcanelibraries
 import net.arcanumverum.arcanelibraries.blocks.Bookcase
 import net.arcanumverum.arcanelibraries.blocks.BookcaseEntity
 import net.minecraft.block.Blocks as MinecraftBlocks
-import net.minecraft.block.FluidBlock
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.render.RenderLayer
 import net.minecraft.client.texture.Sprite
@@ -44,6 +43,7 @@ import net.arcanumverum.arcanelibraries.screens.BookcaseScreen
 import net.arcanumverum.arcanelibraries.screens.BookcaseScreenHandler
 import net.arcanumverum.arcanelibraries.screens.tome.TomeScreen
 import net.arcanumverum.arcanelibraries.screens.tome.TomeScreenHandler
+import net.minecraft.block.*
 import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.item.BlockItem
 
@@ -53,6 +53,19 @@ object Blocks {
         Registry.BLOCK,
         Constants.BOOKCASE_BLOCK_IDENTIFIER,
         Bookcase(FabricBlockSettings.copyOf(MinecraftBlocks.CHEST)))
+    val ELDRITCH_LOG = Registry.register(
+        Registry.BLOCK,
+        Constants.ELDRITCH_LOG_IDENTIFIER,
+        PillarBlock(FabricBlockSettings.of(Material.WOOD).hardness(2.0f)))
+    val ELDRITCH_PLANKS = Registry.register(
+        Registry.BLOCK,
+        Constants.ELDRITCH_PLANKS_IDENTIFIER,
+        Block(FabricBlockSettings.of(Material.WOOD).hardness(2.0f)))
+    val ELDRITCH_SLAB = Registry.register(
+        Registry.BLOCK,
+        Constants.ELDRITCH_SLAB_IDENTIFIER,
+        SlabBlock(FabricBlockSettings.of(Material.WOOD).hardness(2.0f)))
+
     val INK = Registry.register(
         Registry.BLOCK,
         Constants.INK_FLUID_BLOCK_IDENTIFIER,
@@ -89,7 +102,19 @@ object Items {
     val BOOKCASE_ITEM = Registry.register(
         Registry.ITEM,
         Constants.BOOKCASE_BLOCK_IDENTIFIER,
-        BlockItem(Blocks.BOOKCASE, Item.Settings().group(ItemGroup.DECORATIONS)))
+        BlockItem(Blocks.BOOKCASE, Item.Settings().group(ItemGroup.MISC)))
+    val ELDRITCH_LOG_ITEM = Registry.register(
+        Registry.ITEM,
+        Constants.ELDRITCH_LOG_IDENTIFIER,
+        BlockItem(Blocks.ELDRITCH_LOG, Item.Settings().group(ItemGroup.MISC)))
+    val ELDRITCH_PLANKS_ITEM = Registry.register(
+        Registry.ITEM,
+        Constants.ELDRITCH_PLANKS_IDENTIFIER,
+        BlockItem(Blocks.ELDRITCH_PLANKS, Item.Settings().group(ItemGroup.MISC)))
+    val ELDRITCH_SLAB_ITEM = Registry.register(
+        Registry.ITEM,
+        Constants.ELDRITCH_SLAB_IDENTIFIER,
+        BlockItem(Blocks.ELDRITCH_SLAB, Item.Settings().group(ItemGroup.MISC)))
 }
 
 object Screens {

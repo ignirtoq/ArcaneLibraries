@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GTG",
+    "WWW",
+    "GSG"
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:gold_nugget"
+    },
+    "T": {
+      "item": "arcane_libraries:scribing_tools"
+    },
+    "W": {
+      "tag": "minecraft:logs"
+    },
+    "S": {
+      "item": "minecraft:soul_sand"
+    }
+  },
+  "result": {
+    "item": "arcane_libraries:eldritch_log",
+    "count": 3
+  }
+}

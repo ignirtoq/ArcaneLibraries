@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab_top",
+  "textures": {
+    "bottom": "arcane_libraries:block/mahogany-wood",
+    "top": "arcane_libraries:block/mahogany-wood",
+    "side": "arcane_libraries:block/mahogany-wood"
+  }
+}

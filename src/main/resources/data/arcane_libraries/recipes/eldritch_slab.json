@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "WWW"
+  ],
+  "key": {
+    "W": {
+      "item": "arcane_libraries:eldritch_planks"
+    }
+  },
+  "result": {
+    "item": "arcane_libraries:eldritch_slab",
+    "count": 6
+  }
+}

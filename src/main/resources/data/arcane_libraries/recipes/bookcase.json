@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "WWW",
+    "STS",
+    "WWW"
+  ],
+  "key": {
+    "W": {
+      "item": "arcane_libraries:eldritch_planks"
+    },
+    "S": {
+      "item": "arcane_libraries:eldritch_slab"
+    },
+    "T": {
+      "item": "arcane_libraries:scribing_tools"
+    }
+  },
+  "result": {
+    "item": "arcane_libraries:bookcase",
+    "count": 1
+  }
+}

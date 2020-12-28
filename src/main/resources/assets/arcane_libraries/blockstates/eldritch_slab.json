@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "arcane_libraries:block/eldritch_slab"
+    },
+    "type=double": {
+      "model": "arcane_libraries:block/eldritch_planks"
+    },
+    "type=top": {
+      "model": "arcane_libraries:block/eldritch_slab_top"
+    }
+  }
+}

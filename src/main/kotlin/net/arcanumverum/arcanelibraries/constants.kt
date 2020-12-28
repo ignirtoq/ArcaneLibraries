@@ -8,8 +8,14 @@ object Constants {
 
     // Block registry paths
     const val BOOKCASE_BLOCK_PATH = "bookcase"
+    const val ELDRITCH_LOG_PATH = "eldritch_log"
+    const val ELDRITCH_PLANKS_PATH = "eldritch_planks"
+    const val ELDRITCH_SLAB_PATH = "eldritch_slab"
 
     val BOOKCASE_BLOCK_IDENTIFIER = Identifier(MOD_ID, BOOKCASE_BLOCK_PATH)
+    val ELDRITCH_LOG_IDENTIFIER = Identifier(MOD_ID, ELDRITCH_LOG_PATH)
+    val ELDRITCH_PLANKS_IDENTIFIER = Identifier(MOD_ID, ELDRITCH_PLANKS_PATH)
+    val ELDRITCH_SLAB_IDENTIFIER = Identifier(MOD_ID, ELDRITCH_SLAB_PATH)
 
     // Fluid registry paths
     const val INK_FLUID_BLOCK_PATH = "ink"
