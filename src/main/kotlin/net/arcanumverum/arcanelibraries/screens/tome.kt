@@ -1,7 +1,5 @@
 package net.arcanumverum.arcanelibraries.screens.tome
 
-import kotlin.math.min
-
 import com.mojang.blaze3d.systems.RenderSystem
 
 import net.minecraft.client.gui.screen.ingame.HandledScreen
@@ -21,6 +19,7 @@ import net.arcanumverum.arcanelibraries.inventories.TomeInventory
 import net.arcanumverum.arcanelibraries.items.BaseTomeItem
 import net.arcanumverum.arcanelibraries.screens.BaseScreenHandler
 import net.minecraft.inventory.Inventory
+import net.minecraft.item.Items
 
 
 val TEXTURE = Identifier(Constants.MOD_ID, Constants.TOME_GUI_TEXTURE_PATH)
@@ -71,21 +70,29 @@ class TomeScreenHandler(sync_id: Int, inv: PlayerInventory, tome: ItemStack)
     }
 
     private fun addTomeSlots() {
-        val numSlots = tomeInventory.size()
-        val oneColumn = numSlots <= TOME_SLOTS_PER_COLUMN
+        val numTomeSlots = tomeInventory.size()
 
-        for (slot in 0 until min(numSlots, TOME_SLOTS_PER_COLUMN)) {
-            addSlot(TomeSlot(
-                tomeInventory, slot,
-                TOME_FIRST_LEFT_SLOT.first, TOME_FIRST_LEFT_SLOT.second + SLOT_HEIGHT * slot))
+        for (slotIndex in 0 until TOME_SLOTS_PER_COLUMN) {
+            val x = TOME_FIRST_LEFT_SLOT.first
+            val y = TOME_FIRST_LEFT_SLOT.second + SLOT_HEIGHT * slotIndex
+            val slot = when {
+                slotIndex < numTomeSlots -> TomeSlot(tomeInventory, slotIndex, x, y)
+                else -> DisabledTomeSlot(x, y)
+            }
+            addSlot(slot)
         }
 
-        if (oneColumn) return;
-
-        for (slot in TOME_SLOTS_PER_COLUMN until numSlots) {
-            addSlot(TomeSlot(
-                tomeInventory, slot,
-                TOME_FIRST_RIGHT_SLOT.first, TOME_FIRST_RIGHT_SLOT.second + SLOT_HEIGHT * slot))
+        for (slotIndex in TOME_SLOTS_PER_COLUMN until TOME_SLOTS_PER_COLUMN * 2) {
+            val x = TOME_FIRST_RIGHT_SLOT.first
+            val y = TOME_FIRST_RIGHT_SLOT.second + SLOT_HEIGHT * (slotIndex - TOME_SLOTS_PER_COLUMN)
+            val slot = when {
+                slotIndex < numTomeSlots -> TomeSlot(tomeInventory, slotIndex, x, y)
+                else -> {
+                    println("slot $slotIndex is disabled")
+                    DisabledTomeSlot(x, y)
+                }
+            }
+            addSlot(slot)
         }
     }
 
@@ -204,4 +211,21 @@ class TomeScreen(handler: TomeScreenHandler, inv: PlayerInventory, title: Text)
 class TomeSlot(private val inv: TomeInventory, index: Int, x: Int, y: Int) : Slot(inv, index, x, y) {
     override fun getMaxItemCount() = inv.maxCountPerStack
     override fun getMaxItemCount(stack: ItemStack): Int = inv.maxCountPerStack
+}
+
+
+class DisabledTomeSlot(x: Int, y: Int) : Slot(null, 0, x, y) {
+    companion object {
+        val BARRIER = ItemStack(Items.BARRIER, 1)
+    }
+    override fun canInsert(stack: ItemStack?): Boolean = false
+    override fun canTakeItems(playerEntity: PlayerEntity?): Boolean = false
+    override fun doDrawHoveringEffect(): Boolean = true
+    override fun getMaxItemCount(): Int = 0
+    override fun getMaxItemCount(stack: ItemStack?): Int = 0
+    override fun getStack(): ItemStack = BARRIER
+    override fun hasStack(): Boolean = true
+    override fun markDirty() = Unit
+    override fun setStack(stack: ItemStack?) = Unit
+    override fun takeStack(amount: Int): ItemStack = ItemStack.EMPTY
 }
