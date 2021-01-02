@@ -5,7 +5,7 @@ import net.arcanumverum.arcanelibraries.Constants
 import net.arcanumverum.arcanelibraries.Screens
 import net.arcanumverum.arcanelibraries.blocks.BookcaseEntity
 import net.arcanumverum.arcanelibraries.inventories.BookcaseInventory
-import net.arcanumverum.arcanelibraries.items.BaseTomeItem
+import net.arcanumverum.arcanelibraries.items.ArcaneTomeItem
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.player.PlayerEntity
@@ -83,5 +83,5 @@ class BookcaseScreen(handler: BookcaseScreenHandler, inv: PlayerInventory, title
 }
 
 class BookcaseSlot(inv: Inventory, index: Int, x: Int, y: Int) : Slot(inv, index, x, y) {
-    override fun canInsert(stack: ItemStack): Boolean = stack.item is BaseTomeItem
+    override fun canInsert(stack: ItemStack): Boolean = stack.item is ArcaneTomeItem
 }

@@ -1,30 +1,25 @@
 package net.arcanumverum.arcanelibraries.inventories
 
-import net.minecraft.nbt.CompoundTag
+import net.arcanumverum.arcanelibraries.items.ArcaneTomeItem
+import net.arcanumverum.arcanelibraries.items.TomeTier
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.util.collection.DefaultedList
-
-import net.arcanumverum.arcanelibraries.items.BaseTomeItem
 import net.minecraft.inventory.Inventories
 import net.minecraft.inventory.Inventory
-import net.minecraft.inventory.SimpleInventory
+import net.minecraft.item.ItemStack
 
 
-const val NBT_TAG_INVENTORY = "arcanelibraries_inventory"
-
-
-class TomeInventory(private val tome: ItemStack, private val max_stack_size: Int = 3 * 7 * 7) : Inventory {
-    private val itemStacks = deserialize(
-        tome.getOrCreateTag().getCompound(NBT_TAG_INVENTORY), tome.item as BaseTomeItem)
+class TomeInventory(private val tome: ItemStack) : Inventory {
+    private val tomeItem: ArcaneTomeItem = tome.item as ArcaneTomeItem
+    private val tomeTier: TomeTier = tomeItem.getTier(tome)
+    private val itemStacks = tomeItem.deserialize(tome)
 
     override fun onClose(player: PlayerEntity) {
-        tome.getOrCreateTag().put(NBT_TAG_INVENTORY, serialize(itemStacks))
+        tomeItem.serialize(tome, itemStacks)
     }
 
-    override fun canPlayerUse(player: PlayerEntity): Boolean = tome.item is BaseTomeItem
+    override fun canPlayerUse(player: PlayerEntity): Boolean = tome.item is ArcaneTomeItem
     override fun clear() = itemStacks.clear()
-    override fun getMaxCountPerStack(): Int = max_stack_size
+    override fun getMaxCountPerStack(): Int = tomeTier.maxStackSize
     override fun getStack(slot: Int): ItemStack = itemStacks[slot]
     override fun isEmpty(): Boolean = itemStacks.isEmpty()
     override fun markDirty() = Unit
@@ -35,24 +30,5 @@ class TomeInventory(private val tome: ItemStack, private val max_stack_size: Int
         itemStacks[slot] = stack
     }
 
-    override fun size(): Int = (tome.item as BaseTomeItem).size()
-
-}
-
-
-fun serialize(itemStacks: DefaultedList<ItemStack>): CompoundTag {
-    val tag = CompoundTag()
-    for (slot in 0 until itemStacks.size) {
-        tag.put("slot${slot}", itemStacks[slot].toTag(CompoundTag()))
-    }
-    return tag
-}
-
-
-fun deserialize(tag: CompoundTag, tome_item: BaseTomeItem): DefaultedList<ItemStack> {
-    val itemStacks = DefaultedList.ofSize(tome_item.size(), ItemStack.EMPTY)
-    for (slot in 0 until itemStacks.size) {
-        itemStacks[slot] = ItemStack.fromTag(tag.getCompound("slot${slot}"))
-    }
-    return itemStacks
+    override fun size(): Int = tomeTier.size
 }

@@ -2,24 +2,23 @@ package net.arcanumverum.arcanelibraries.screens.tome
 
 import com.mojang.blaze3d.systems.RenderSystem
 
+import net.arcanumverum.arcanelibraries.Constants
+import net.arcanumverum.arcanelibraries.Screens
+import net.arcanumverum.arcanelibraries.inventories.TomeInventory
+import net.arcanumverum.arcanelibraries.items.ArcaneTomeItem
+import net.arcanumverum.arcanelibraries.screens.BaseScreenHandler
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.inventory.Inventory
+import net.minecraft.item.Items
 import net.minecraft.item.ItemStack
 import net.minecraft.screen.NamedScreenHandlerFactory
 import net.minecraft.screen.ScreenHandler
 import net.minecraft.screen.slot.Slot
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
-
-import net.arcanumverum.arcanelibraries.Constants
-import net.arcanumverum.arcanelibraries.Screens
-import net.arcanumverum.arcanelibraries.inventories.TomeInventory
-import net.arcanumverum.arcanelibraries.items.BaseTomeItem
-import net.arcanumverum.arcanelibraries.screens.BaseScreenHandler
-import net.minecraft.inventory.Inventory
-import net.minecraft.item.Items
 
 
 val TEXTURE = Identifier(Constants.MOD_ID, Constants.TOME_GUI_TEXTURE_PATH)
@@ -37,7 +36,7 @@ const val SLOT_HEIGHT = 18
 fun getTome(player: PlayerEntity): ItemStack {
     val mainHand = player.mainHandStack
     val offHand = player.offHandStack
-    if (mainHand.item is BaseTomeItem) return mainHand
+    if (mainHand.item is ArcaneTomeItem) return mainHand
     return offHand
 }
 
@@ -87,10 +86,7 @@ class TomeScreenHandler(sync_id: Int, inv: PlayerInventory, tome: ItemStack)
             val y = TOME_FIRST_RIGHT_SLOT.second + SLOT_HEIGHT * (slotIndex - TOME_SLOTS_PER_COLUMN)
             val slot = when {
                 slotIndex < numTomeSlots -> TomeSlot(tomeInventory, slotIndex, x, y)
-                else -> {
-                    println("slot $slotIndex is disabled")
-                    DisabledTomeSlot(x, y)
-                }
+                else -> DisabledTomeSlot(x, y)
             }
             addSlot(slot)
         }
