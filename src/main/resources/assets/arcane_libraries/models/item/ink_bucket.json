@@ -1,5 +1,5 @@
 {
-  "parent": "builtin/generated",
+  "parent": "minecraft:item/bucket",
   "textures": {
     "layer0": "arcane_libraries:item/ink_bucket"
   }

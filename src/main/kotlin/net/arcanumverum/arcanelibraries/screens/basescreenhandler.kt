@@ -189,8 +189,8 @@ interface SwapAction {
 
 class DefaultSwapAction : SwapAction
 
-abstract class BaseScreenHandler<T : ScreenHandler?>(
-    screenHandlerType: ScreenHandlerType<T>?,
+abstract class BaseScreenHandler<R : ScreenHandler, T : ScreenHandlerType<R>>(
+    screenHandlerType: T,
     syncId: Int,
     private val pickUpAction: PickUpAction = DefaultPickUpAction(),
     private val swapAction: SwapAction = DefaultSwapAction(),

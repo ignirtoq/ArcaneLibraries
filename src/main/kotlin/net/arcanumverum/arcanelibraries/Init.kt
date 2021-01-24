@@ -37,12 +37,10 @@ import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry
 
 import net.arcanumverum.arcanelibraries.fluids.InkFluid
 import net.arcanumverum.arcanelibraries.items.ArcaneTomeItem
+import net.arcanumverum.arcanelibraries.items.CodexOfSight
 import net.arcanumverum.arcanelibraries.items.InkVialItem
 import net.arcanumverum.arcanelibraries.items.ScribingToolsItem
-import net.arcanumverum.arcanelibraries.screens.BookcaseScreen
-import net.arcanumverum.arcanelibraries.screens.BookcaseScreenHandler
-import net.arcanumverum.arcanelibraries.screens.tome.TomeScreen
-import net.arcanumverum.arcanelibraries.screens.tome.TomeScreenHandler
+import net.arcanumverum.arcanelibraries.screens.*
 import net.minecraft.block.*
 import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.item.BlockItem
@@ -73,6 +71,7 @@ object Blocks {
     )
 }
 
+
 object BlockEntities {
     val BOOKCASE_BLOCK_ENTITY = Registry.register(
         Registry.BLOCK_ENTITY_TYPE,
@@ -80,15 +79,19 @@ object BlockEntities {
         BlockEntityType.Builder.create(::BookcaseEntity, Blocks.BOOKCASE).build(null))
 }
 
+
 object Fluids {
     val STILL_INK: InkFluid.Still = Registry.register(Registry.FLUID, Constants.STILL_INK_IDENTIFIER, InkFluid.Still())
     val FLOWING_INK: InkFluid.Flowing = Registry.register(Registry.FLUID, Constants.FLOWING_INK_IDENTIFIER, InkFluid.Flowing())
 }
 
+
 object Items {
     val INK_VIAL = InkVialItem(FabricItemSettings().group(ItemGroup.MISC).maxCount(1))
     val SCRIBING_TOOLS = ScribingToolsItem(FabricItemSettings().group(ItemGroup.MISC).maxCount(1))
     val ARCANE_TOME = ArcaneTomeItem(FabricItemSettings().group(ItemGroup.MISC).maxCount(1))
+    val ALL_SEEING_EYE = Item(FabricItemSettings().group(ItemGroup.MISC))
+    val CODEX_OF_SIGHT = CodexOfSight(FabricItemSettings().group(ItemGroup.MISC).maxCount(1))
 
     // Fluid buckets
    val INK_BUCKET: BucketItem = Registry.register(
@@ -117,18 +120,25 @@ object Items {
         BlockItem(Blocks.ELDRITCH_SLAB, Item.Settings().group(ItemGroup.MISC)))
 }
 
+
 object Screens {
-    val TOME_SCREEN_HANDLER: ScreenHandlerType<TomeScreenHandler> = ScreenHandlerRegistry.registerSimple(
-        Constants.ARCANE_TOME_IDENTIFIER, ::TomeScreenHandler)
+    val ARCANE_TOME_SCREEN_HANDLER: ScreenHandlerType<ArcaneTomeScreenHandler> = ScreenHandlerRegistry.registerExtended(
+        Constants.ARCANE_TOME_IDENTIFIER, ::ArcaneTomeScreenHandler)
+    val CODEX_SCREEN_HANDLER: ScreenHandlerType<CodexScreenHandler> = ScreenHandlerRegistry.registerExtended(
+        Constants.CODEX_OF_SIGHT_IDENTIFIER, ::CodexScreenHandler)
     val BOOKCASE_SCREEN_HANDLER: ScreenHandlerType<BookcaseScreenHandler> = ScreenHandlerRegistry.registerSimple(
         Constants.BOOKCASE_BLOCK_IDENTIFIER, ::BookcaseScreenHandler)
 }
+
 
 fun loadItems() {
     Registry.register(Registry.ITEM, Constants.INK_VIAL_IDENTIFIER, Items.INK_VIAL)
     Registry.register(Registry.ITEM, Constants.SCRIBING_TOOLS_IDENTIFIER, Items.SCRIBING_TOOLS)
     Registry.register(Registry.ITEM, Constants.ARCANE_TOME_IDENTIFIER, Items.ARCANE_TOME)
+    Registry.register(Registry.ITEM, Constants.ALL_SEEING_EYE_IDENTIFIER, Items.ALL_SEEING_EYE)
+    Registry.register(Registry.ITEM, Constants.CODEX_OF_SIGHT_IDENTIFIER, Items.CODEX_OF_SIGHT)
 }
+
 
 @Suppress("unused")
 fun init() {
@@ -193,7 +203,8 @@ fun setupInk() {
 @Environment(EnvType.CLIENT)
 @Suppress("unused")
 fun initClient() {
-    ScreenRegistry.register(Screens.TOME_SCREEN_HANDLER, ::TomeScreen)
+    ScreenRegistry.register(Screens.ARCANE_TOME_SCREEN_HANDLER, ::ArcaneTomeScreen)
+    ScreenRegistry.register(Screens.CODEX_SCREEN_HANDLER, ::CodexScreen)
     ScreenRegistry.register(Screens.BOOKCASE_SCREEN_HANDLER, ::BookcaseScreen)
     setupInk()
 }

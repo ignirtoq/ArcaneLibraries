@@ -14,12 +14,13 @@ import net.minecraft.inventory.Inventory
 import net.minecraft.item.ItemStack
 import net.minecraft.screen.NamedScreenHandlerFactory
 import net.minecraft.screen.ScreenHandler
+import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.screen.slot.Slot
 import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.Identifier
 
-val TEXTURE = Identifier(Constants.MOD_ID, Constants.BOOKCASE_GUI_TEXTURE_PATH)
+val BOOKCASE_TEXTURE = Identifier(Constants.MOD_ID, Constants.BOOKCASE_GUI_TEXTURE_PATH)
 const val BOOKCASE_GUI_TEXTURE_WIDTH = 175
 const val BOOKCASE_GUI_TEXTURE_HEIGHT = 139
 
@@ -36,7 +37,7 @@ class BookcaseScreenHandlerFactory(private val block: BookcaseEntity) : NamedScr
 }
 
 class BookcaseScreenHandler(syncId: Int, playerInventory: PlayerInventory?, private val inventory: BookcaseInventory)
-: BaseScreenHandler<BookcaseScreenHandler>(Screens.BOOKCASE_SCREEN_HANDLER, syncId) {
+: BaseScreenHandler<BookcaseScreenHandler, ScreenHandlerType<BookcaseScreenHandler>>(Screens.BOOKCASE_SCREEN_HANDLER, syncId) {
     constructor(syncId: Int, playerInventory: PlayerInventory?) : this(syncId, playerInventory, BookcaseInventory())
 
     init {
@@ -70,7 +71,7 @@ class BookcaseScreen(handler: BookcaseScreenHandler, inv: PlayerInventory, title
 
     override fun drawBackground(matrices: MatrixStack?, delta: Float, mouseX: Int, mouseY: Int) {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F)
-        client!!.textureManager.bindTexture(TEXTURE)
+        client!!.textureManager.bindTexture(BOOKCASE_TEXTURE)
         val (i, j) = Pair((width - backgroundWidth) / 2, (height - backgroundHeight) / 2)
         drawTexture(matrices, i, j, 0, 0, backgroundWidth, backgroundHeight)
     }

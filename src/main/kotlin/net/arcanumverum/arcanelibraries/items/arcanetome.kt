@@ -1,19 +1,19 @@
 package net.arcanumverum.arcanelibraries.items
 
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Hand
-import net.minecraft.util.TypedActionResult
-import net.minecraft.world.World
-
-import net.arcanumverum.arcanelibraries.screens.tome.TomeScreenHandlerFactory
+import net.arcanumverum.arcanelibraries.screens.ArcaneTomeScreenHandlerFactory
+import net.arcanumverum.arcanelibraries.Items as ALItems
 import net.minecraft.client.item.TooltipContext
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.Item
 import net.minecraft.item.Items
+import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
+import net.minecraft.util.Hand
+import net.minecraft.util.TypedActionResult
 import net.minecraft.util.collection.DefaultedList
+import net.minecraft.world.World
 
 
 const val DEFAULT_TIER = "one"
@@ -26,7 +26,7 @@ class ArcaneTomeItem(settings: Settings) : Item(settings) {
     override fun use(world: World, user: PlayerEntity, hand: Hand): TypedActionResult<ItemStack> {
         val stack = user.getStackInHand(hand)
         if (!world.isClient) {
-            user.openHandledScreen(TomeScreenHandlerFactory(stack))
+            user.openHandledScreen(ArcaneTomeScreenHandlerFactory(stack))
         }
         return TypedActionResult.success(stack)
     }
@@ -45,42 +45,69 @@ class ArcaneTomeItem(settings: Settings) : Item(settings) {
         }
     }
 
-    fun serialize(tome: ItemStack, itemStacks: DefaultedList<ItemStack>) {
-        val tag = CompoundTag()
-        for (slot in 0 until itemStacks.size) {
-            tag.put("slot${slot}", itemStacks[slot].toTag(CompoundTag()))
+    companion object {
+        private fun serialize(tome: ItemStack, itemStacks: List<ItemStack>) {
+            val tag = CompoundTag()
+            for (slot in itemStacks.indices) {
+                tag.put("slot${slot}", itemStacks[slot].toTag(CompoundTag()))
+            }
+            tome.getOrCreateTag().put(NBT_TAG_INVENTORY, tag)
         }
-        tome.getOrCreateTag().put(NBT_TAG_INVENTORY, tag)
-    }
 
-    fun deserialize(tome: ItemStack): DefaultedList<ItemStack> {
-        val tag = tome.getOrCreateTag().getCompound(NBT_TAG_INVENTORY)
-        val itemStacks = DefaultedList.ofSize(getTier(tome).size, ItemStack.EMPTY)
-        for (slot in 0 until itemStacks.size) {
-            itemStacks[slot] = ItemStack.fromTag(tag.getCompound("slot${slot}"))
+        fun serialize(tomes: List<ItemStack>, itemStacks: DefaultedList<ItemStack>) {
+            var startIndex = 0
+            for (tome in tomes) {
+                val tomeSize = getTier(tome).size
+                serialize(tome, itemStacks.subList(startIndex, startIndex + tomeSize))
+                startIndex += tomeSize
+            }
         }
-        return itemStacks
-    }
 
-    fun getTier(tome: ItemStack): TomeTier {
-        var tierNbt = tome.getOrCreateTag().getString(NBT_TAG_TIER)
-        if (tierNbt == "") {
-            tierNbt = DEFAULT_TIER
-            setTier(tome, tierNbt)
+        private fun deserialize(tome: ItemStack): List<ItemStack> {
+            val tag = tome.getOrCreateTag().getCompound(NBT_TAG_INVENTORY)
+            return List<ItemStack>(getTier(tome).size) {
+                ItemStack.fromTag(tag.getCompound("slot${it}"))
+            }
         }
-        return TomeTier.valueOf(tierNbt)
-    }
 
-    fun setTier(tome: ItemStack, tier: TomeTier) {
-        tome.getOrCreateTag().putString(NBT_TAG_TIER, tier.name)
-    }
+        fun deserialize(tomes: List<ItemStack>): List<ItemStack> {
+            return listOf(*tomes.map { tome ->
+                deserialize(tome)
+            }.flatten().toTypedArray())
+        }
 
-    fun setTier(tome: ItemStack, tier: String) = setTier(tome, TomeTier.valueOf(tier))
+        fun getTier(tome: ItemStack): TomeTier {
+            var tierNbt = tome.getOrCreateTag().getString(NBT_TAG_TIER)
+            if (tierNbt == "") {
+                tierNbt = DEFAULT_TIER
+                setTier(tome, tierNbt)
+            }
+            return TomeTier.valueOf(tierNbt)
+        }
+
+        fun setTier(tome: ItemStack, tier: TomeTier) {
+            tome.getOrCreateTag().putString(NBT_TAG_TIER, tier.name)
+        }
+
+        fun setTier(tome: ItemStack, tier: String) = setTier(tome, TomeTier.valueOf(tier))
+
+        fun fromTier(tier: TomeTier?): ItemStack {
+            val newTome = ItemStack(ALItems.ARCANE_TOME, 1)
+            setTier(newTome, tier!!)
+            return newTome
+        }
+    }
 }
 
 
 enum class TomeTier(val size: Int, val maxStackSize: Int) {
     one(3, 3 * 7 * 7),
     two(7, 3 * 7 * 7 * 3),
-    three(3 * 7, 3 * 7 * 7 * 7),
+    three(3 * 7, 3 * 7 * 7 * 7);
+
+    companion object {
+        private val map = mapOf(1 to one, 2 to two, 3 to three)
+
+        fun fromInt(i: Int): TomeTier? = map[i]
+    }
 }

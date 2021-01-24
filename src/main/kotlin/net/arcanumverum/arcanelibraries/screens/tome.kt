@@ -1,27 +1,25 @@
-package net.arcanumverum.arcanelibraries.screens.tome
+package net.arcanumverum.arcanelibraries.screens
 
 import com.mojang.blaze3d.systems.RenderSystem
 
 import net.arcanumverum.arcanelibraries.Constants
-import net.arcanumverum.arcanelibraries.Screens
 import net.arcanumverum.arcanelibraries.inventories.TomeInventory
-import net.arcanumverum.arcanelibraries.items.ArcaneTomeItem
-import net.arcanumverum.arcanelibraries.screens.BaseScreenHandler
 import net.minecraft.client.gui.screen.ingame.HandledScreen
+import net.minecraft.client.gui.widget.TexturedButtonWidget
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.Inventory
 import net.minecraft.item.Items
 import net.minecraft.item.ItemStack
-import net.minecraft.screen.NamedScreenHandlerFactory
 import net.minecraft.screen.ScreenHandler
+import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.screen.slot.Slot
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 
 
-val TEXTURE = Identifier(Constants.MOD_ID, Constants.TOME_GUI_TEXTURE_PATH)
+val TOME_TEXTURE = Identifier(Constants.MOD_ID, Constants.TOME_GUI_TEXTURE_PATH)
 const val TOME_GUI_TEXTURE_WIDTH = 237
 const val TOME_GUI_TEXTURE_HEIGHT = 256
 
@@ -30,31 +28,27 @@ val TOME_FIRST_RIGHT_SLOT = Pair(196, 22)
 val TOME_FIRST_PLAYER_SLOT = Pair(40, 174)
 val TOME_FIRST_HOTBAR_SLOT = Pair(40, 232)
 const val TOME_SLOTS_PER_COLUMN = 7
+const val TOME_COLUMNS = 2
+const val TOME_SLOTS = TOME_SLOTS_PER_COLUMN * TOME_COLUMNS
 
-const val SLOT_HEIGHT = 18
-
-fun getTome(player: PlayerEntity): ItemStack {
-    val mainHand = player.mainHandStack
-    val offHand = player.offHandStack
-    if (mainHand.item is ArcaneTomeItem) return mainHand
-    return offHand
-}
-
-
-class TomeScreenHandlerFactory(private val tome: ItemStack) : NamedScreenHandlerFactory {
-    override fun createMenu(sync_id: Int, inv: PlayerInventory, player: PlayerEntity): ScreenHandler {
-        return TomeScreenHandler(sync_id, inv, tome)
-    }
-
-    override fun getDisplayName(): Text = tome.name
-}
+const val BUTTON_X_SIZE = 20
+const val BUTTON_Y_SIZE = 13
+const val BUTTON_TEXTURE_LEFT_X_POS = 0
+const val BUTTON_TEXTURE_RIGHT_X_POS = 21
+const val BUTTON_TEXTURE_GRAY_Y_POS = 0
+val BUTTON_TEXTURE = Identifier(Constants.MOD_ID, Constants.TOME_GUI_BUTTONS_TEXTURE_PATH)
+val LEFT_BUTTON = Pair(31, 149)
+val RIGHT_BUTTON = Pair(193, 149)
 
 
-class TomeScreenHandler(sync_id: Int, inv: PlayerInventory, tome: ItemStack)
-: BaseScreenHandler<TomeScreenHandler>(Screens.TOME_SCREEN_HANDLER, sync_id) {
-    private val tomeInventory = TomeInventory(tome)
-
-    constructor (sync_id: Int, inv: PlayerInventory) : this(sync_id, inv, getTome(inv.player))
+open class TomeScreenHandler<R : ScreenHandler, T : ScreenHandlerType<R>>(
+    handlerType: T,
+    syncId: Int,
+    inv: PlayerInventory,
+    vararg tomes: ItemStack
+) : BaseScreenHandler<R, T>(handlerType, syncId) {
+    private val tomeInventory = TomeInventory(*tomes)
+    private var page: Int = 0
 
     init {
         addTomeSlots()
@@ -69,26 +63,40 @@ class TomeScreenHandler(sync_id: Int, inv: PlayerInventory, tome: ItemStack)
     }
 
     private fun addTomeSlots() {
-        val numTomeSlots = tomeInventory.size()
+        loopOverSlots { slotIndex, x, y -> addSlot(createSlot(slotIndex, x, y)) }
+    }
 
-        for (slotIndex in 0 until TOME_SLOTS_PER_COLUMN) {
-            val x = TOME_FIRST_LEFT_SLOT.first
-            val y = TOME_FIRST_LEFT_SLOT.second + SLOT_HEIGHT * slotIndex
-            val slot = when {
-                slotIndex < numTomeSlots -> TomeSlot(tomeInventory, slotIndex, x, y)
-                else -> DisabledTomeSlot(x, y)
-            }
-            addSlot(slot)
-        }
+    private fun updateTomeSlots() {
+        val startIndex = page * TOME_SLOTS
+        loopOverSlots { slotIndex, x, y -> slots[slotIndex] = createSlot(slotIndex + startIndex, x, y) }
+    }
 
-        for (slotIndex in TOME_SLOTS_PER_COLUMN until TOME_SLOTS_PER_COLUMN * 2) {
-            val x = TOME_FIRST_RIGHT_SLOT.first
-            val y = TOME_FIRST_RIGHT_SLOT.second + SLOT_HEIGHT * (slotIndex - TOME_SLOTS_PER_COLUMN)
-            val slot = when {
-                slotIndex < numTomeSlots -> TomeSlot(tomeInventory, slotIndex, x, y)
-                else -> DisabledTomeSlot(x, y)
-            }
-            addSlot(slot)
+    fun nextPage() {
+        if (!hasMorePages()) return
+        page += 1
+        updateTomeSlots()
+    }
+
+    fun previousPage() {
+        if (onFirstPage()) return
+        page -= 1
+        updateTomeSlots()
+    }
+
+    fun hasMorePages(): Boolean = (page + 1) * TOME_SLOTS < tomeInventory.size()
+
+    fun onFirstPage(): Boolean = page == 0
+
+    private fun createSlot(invIndex: Int, x: Int, y: Int): Slot {
+        if (invIndex < tomeInventory.size()) return TomeSlot(tomeInventory, invIndex, x, y)
+        return DisabledTomeSlot(x, y)
+    }
+
+    private fun loopOverSlots(onEach: (slotIndex: Int, x: Int, y: Int) -> Unit) {
+        for (slotIndex in 0 until TOME_SLOTS) {
+            val x = if (slotIndex < TOME_SLOTS_PER_COLUMN) TOME_FIRST_LEFT_SLOT.first else TOME_FIRST_RIGHT_SLOT.first
+            val y = TOME_FIRST_LEFT_SLOT.second + SLOT_HEIGHT * (slotIndex % TOME_SLOTS_PER_COLUMN)
+            onEach(slotIndex, x, y)
         }
     }
 
@@ -172,21 +180,25 @@ class TomeScreenHandler(sync_id: Int, inv: PlayerInventory, tome: ItemStack)
 }
 
 
-class TomeScreen(handler: TomeScreenHandler, inv: PlayerInventory, title: Text)
-    : HandledScreen<TomeScreenHandler>(handler, inv, title) {
+open class TomeScreen<R: ScreenHandler, S: ScreenHandlerType<R>, T : TomeScreenHandler<R, S>>(
+    handler: T, inv: PlayerInventory, title: Text
+)
+: HandledScreen<T>(handler, inv, title) {
 
     override fun init() {
         backgroundWidth = TOME_GUI_TEXTURE_WIDTH
         backgroundHeight = TOME_GUI_TEXTURE_HEIGHT
         super.init()
         titleX = (backgroundWidth - textRenderer.getWidth(title)) / 2
+        buttons.add(addButton(newLeftButton()))
+        buttons.add(addButton(newRightButton()))
     }
 
-    override fun getScreenHandler(): TomeScreenHandler = handler
+    override fun getScreenHandler(): T = handler
 
     override fun drawBackground(matrices: MatrixStack, delta: Float, mouseX: Int, mouseY: Int) {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F)
-        client!!.textureManager.bindTexture(TEXTURE)
+        client!!.textureManager.bindTexture(TOME_TEXTURE)
         val (i, j) = Pair((width - backgroundWidth) / 2, (height - backgroundHeight) / 2)
         drawTexture(matrices, i, j, 0, 0, backgroundWidth, backgroundHeight)
     }
@@ -201,12 +213,20 @@ class TomeScreen(handler: TomeScreenHandler, inv: PlayerInventory, title: Text)
         super.render(matrices, mouseX, mouseY, delta)
         drawMouseoverTooltip(matrices, mouseX, mouseY)
     }
+
+    fun newLeftButton(): LeftButton {
+        return LeftButton(x + LEFT_BUTTON.first, y + LEFT_BUTTON.second) { handler.previousPage() }
+    }
+
+    fun newRightButton(): RightButton {
+        return RightButton(x + RIGHT_BUTTON.first, y + RIGHT_BUTTON.second) { handler.nextPage() }
+    }
 }
 
 
-class TomeSlot(private val inv: TomeInventory, index: Int, x: Int, y: Int) : Slot(inv, index, x, y) {
-    override fun getMaxItemCount() = inv.maxCountPerStack
-    override fun getMaxItemCount(stack: ItemStack): Int = inv.maxCountPerStack
+class TomeSlot(private val inv: TomeInventory, private val index: Int, x: Int, y: Int) : Slot(inv, index, x, y) {
+    override fun getMaxItemCount() = inv.getMaxCount(index)
+    override fun getMaxItemCount(stack: ItemStack): Int = this.maxItemCount
 }
 
 
@@ -225,3 +245,20 @@ class DisabledTomeSlot(x: Int, y: Int) : Slot(null, 0, x, y) {
     override fun setStack(stack: ItemStack?) = Unit
     override fun takeStack(amount: Int): ItemStack = ItemStack.EMPTY
 }
+
+
+abstract class PageButton(xPos: Int, yPos: Int, u: Int, action: PressAction)
+: TexturedButtonWidget(
+    xPos, yPos,  // x, y position on the screen
+    BUTTON_X_SIZE, BUTTON_Y_SIZE,  // size of the button in the texture and on the screen
+    u, BUTTON_TEXTURE_GRAY_Y_POS,  // position (in pixels) of the button's upper left pixel in the texture
+    BUTTON_Y_SIZE,  // v (vertical) offset to add to texture position on hover
+    BUTTON_TEXTURE,  // texture location identifier
+    action  // function to call on click
+)
+
+
+class LeftButton(xPos: Int, yPos: Int, action: PressAction) : PageButton(xPos, yPos, BUTTON_TEXTURE_LEFT_X_POS, action)
+
+
+class RightButton(xPos: Int, yPos: Int, action: PressAction) : PageButton(xPos, yPos, BUTTON_TEXTURE_RIGHT_X_POS, action)

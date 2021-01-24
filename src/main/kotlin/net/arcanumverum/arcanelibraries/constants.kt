@@ -32,12 +32,23 @@ object Constants {
     const val INK_VIAL_PATH = "ink_vial"
     const val SCRIBING_TOOLS_PATH = "scribing_tools"
     const val ARCANE_TOME_PATH = "arcane_tome"
+    const val ALL_SEEING_EYE_PATH = "all_seeing_eye"
+    const val CODEX_OF_SIGHT_PATH = "codex_of_sight"
 
     val INK_VIAL_IDENTIFIER = Identifier(MOD_ID, INK_VIAL_PATH)
     val SCRIBING_TOOLS_IDENTIFIER = Identifier(MOD_ID, SCRIBING_TOOLS_PATH)
     val ARCANE_TOME_IDENTIFIER = Identifier(MOD_ID, ARCANE_TOME_PATH)
+    val ALL_SEEING_EYE_IDENTIFIER = Identifier(MOD_ID, ALL_SEEING_EYE_PATH)
+    val CODEX_OF_SIGHT_IDENTIFIER = Identifier(MOD_ID, CODEX_OF_SIGHT_PATH)
 
     // Texture paths
     const val BOOKCASE_GUI_TEXTURE_PATH = "textures/gui/bookcase-with-inventory.png"
     const val TOME_GUI_TEXTURE_PATH = "textures/gui/tome-with-inventory.png"
+    const val TOME_GUI_BUTTONS_TEXTURE_PATH = "textures/gui/page-arrows.png"
+
+    // Networking
+
+    const val TOME_PAGE_PACKET_NAME = "tome_page_packet"
+
+    val TOME_PAGE_PACKET = Identifier(MOD_ID, TOME_PAGE_PACKET_NAME)
 }

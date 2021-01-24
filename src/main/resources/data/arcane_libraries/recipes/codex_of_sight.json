@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ET",
+    "BC"
+  ],
+  "key": {
+    "E": {
+      "item": "arcane_libraries:all_seeing_eye"
+    },
+    "T": {
+      "item": "arcane_libraries:scribing_tools"
+    },
+    "B": {
+      "item": "minecraft:book"
+    },
+    "C": {
+      "item": "minecraft:clay_ball"
+    }
+  },
+  "result": {
+    "item": "arcane_libraries:codex_of_sight",
+    "count": 1
+  }
+}

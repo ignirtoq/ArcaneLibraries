@@ -4,9 +4,12 @@
     "block.arcane_libraries.eldritch_log": "Eldritch Log",
     "block.arcane_libraries.eldritch_planks": "Eldritch Planks",
     "block.arcane_libraries.eldritch_slab": "Eldritch Slab",
-    "item.arcane_libraries.ink_vial": "Ink Vial",
-    "item.arcane_libraries.scribing_tools": "Scribing Tools",
+
+    "item.arcane_libraries.all_seeing_eye": "All-Seeing Eye",
     "item.arcane_libraries.arcane_tome": "Arcane Tome",
     "item.arcane_libraries.arcane_tome.tooltip": "%d %s",
-    "item.arcane_libraries.ink_bucket": "Ink Bucket"
+    "item.arcane_libraries.codex_of_sight": "Codex of Sight",
+    "item.arcane_libraries.ink_bucket": "Ink Bucket",
+    "item.arcane_libraries.ink_vial": "Ink Vial",
+    "item.arcane_libraries.scribing_tools": "Scribing Tools"
 }

@@ -1,21 +1,20 @@
 package net.arcanumverum.arcanelibraries.blocks
 
 import net.arcanumverum.arcanelibraries.BlockEntities
-import net.arcanumverum.arcanelibraries.inventories.BlockInventory
 import net.arcanumverum.arcanelibraries.inventories.BookcaseInventory
+import net.arcanumverum.arcanelibraries.items.ArcaneTomeItem
+import net.arcanumverum.arcanelibraries.items.CodexOfSight
 import net.arcanumverum.arcanelibraries.screens.BookcaseScreenHandlerFactory
+import net.arcanumverum.arcanelibraries.screens.CodexScreenHandlerFactory
 import net.minecraft.block.BlockRenderType
 import net.minecraft.block.BlockState
 import net.minecraft.block.BlockWithEntity
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.Inventories
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.screen.NamedScreenHandlerFactory
 import net.minecraft.screen.ScreenHandler
-import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.ItemScatterer
@@ -41,7 +40,14 @@ class Bookcase(settings: Settings) : BlockWithEntity(settings) {
 
         val bookcaseBlockEntity = world.getBlockEntity(pos)
         if (bookcaseBlockEntity is BookcaseEntity) {
-            player.openHandledScreen(BookcaseScreenHandlerFactory(bookcaseBlockEntity))
+            val bookcaseItems = bookcaseBlockEntity.inventory.getItems()
+            val tomes = bookcaseItems.mapNotNull { if(it.item is ArcaneTomeItem) it else null }.toTypedArray()
+            if (tomes.isNotEmpty() &&
+                (player.mainHandStack.item is CodexOfSight || player.offHandStack.item is CodexOfSight)) {
+                player.openHandledScreen(CodexScreenHandlerFactory(bookcaseBlockEntity))
+            } else {
+                player.openHandledScreen(BookcaseScreenHandlerFactory(bookcaseBlockEntity))
+            }
         }
 
         return ActionResult.SUCCESS
@@ -81,9 +87,13 @@ class BookcaseEntity : BlockEntity(BlockEntities.BOOKCASE_BLOCK_ENTITY) {
         Inventories.fromTag(tag, this.inventory.getItems())
     }
 
-    override fun toTag(tag: CompoundTag?): CompoundTag {
+    override fun toTag(tag: CompoundTag): CompoundTag {
         super.toTag(tag)
         Inventories.toTag(tag, this.inventory.getItems())
-        return tag!!
+        return tag
+    }
+
+    fun getTomesInside(): List<ItemStack> {
+        return inventory.getItems().mapNotNull {if (it.item is ArcaneTomeItem) it else null}
     }
 }
