@@ -37,7 +37,7 @@ class BookcaseScreenHandlerFactory(private val block: BookcaseEntity) : NamedScr
 }
 
 class BookcaseScreenHandler(syncId: Int, playerInventory: PlayerInventory?, private val inventory: BookcaseInventory)
-: BaseScreenHandler<BookcaseScreenHandler, ScreenHandlerType<BookcaseScreenHandler>>(Screens.BOOKCASE_SCREEN_HANDLER, syncId) {
+: BaseScreenHandler<BookcaseScreenHandler, ScreenHandlerType<BookcaseScreenHandler>>(Screens.BOOKCASE_SCREEN_HANDLER!!, syncId) {
     constructor(syncId: Int, playerInventory: PlayerInventory?) : this(syncId, playerInventory, BookcaseInventory())
 
     init {
@@ -83,6 +83,6 @@ class BookcaseScreen(handler: BookcaseScreenHandler, inv: PlayerInventory, title
     }
 }
 
-class BookcaseSlot(inv: Inventory, index: Int, x: Int, y: Int) : Slot(inv, index, x, y) {
+class BookcaseSlot(inv: Inventory, index: Int, x: Int, y: Int) : BaseSlot(inv, index, x, y) {
     override fun canInsert(stack: ItemStack): Boolean = stack.item is ArcaneTomeItem
 }

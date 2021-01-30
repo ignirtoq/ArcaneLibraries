@@ -42,7 +42,7 @@ class ArcaneTomeScreenHandler(
     pageDataId: String?,
     tome: ItemStack
 ) : TomeScreenHandler<ArcaneTomeScreenHandler, ScreenHandlerType<ArcaneTomeScreenHandler>>(
-    Screens.ARCANE_TOME_SCREEN_HANDLER, syncId, inv, pageDataId, tome
+    Screens.ARCANE_TOME_SCREEN_HANDLER!!, syncId, inv, pageDataId, tome
 ) {
     constructor (
         sync_id: Int,

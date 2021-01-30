@@ -22,7 +22,7 @@ abstract class InkFluid : BaseFluid() {
        return Blocks.INK.getDefaultState().with(Properties.LEVEL_15, method_15741(state))
    }
 
-   public class Flowing : InkFluid() {
+   class Flowing : InkFluid() {
        override fun appendProperties(builder: StateManager.Builder<Fluid, FluidState>) {
            super.appendProperties(builder)
            builder.add(LEVEL)
@@ -32,7 +32,7 @@ abstract class InkFluid : BaseFluid() {
        override fun isStill(state: FluidState): Boolean = false
    }
 
-   public class Still : InkFluid() {
+   class Still : InkFluid() {
        override fun getLevel(state: FluidState): Int = 8
        override fun isStill(state: FluidState): Boolean = true
    }

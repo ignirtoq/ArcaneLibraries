@@ -72,7 +72,7 @@ class CodexScreenHandler(
     pageDataId: String?,
     vararg tomes: ItemStack
 ) : TomeScreenHandler<CodexScreenHandler, ScreenHandlerType<CodexScreenHandler>>(
-    Screens.CODEX_SCREEN_HANDLER, syncId, inv, pageDataId, *tomes
+    Screens.CODEX_SCREEN_HANDLER!!, syncId, inv, pageDataId, *tomes
 ) {
     constructor (
         sync_id: Int, inv: PlayerInventory, buf: PacketByteBuf

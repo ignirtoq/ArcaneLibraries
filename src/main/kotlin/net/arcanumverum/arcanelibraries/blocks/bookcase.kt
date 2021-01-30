@@ -18,7 +18,6 @@ import net.minecraft.screen.ScreenHandler
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.ItemScatterer
-import net.minecraft.util.collection.DefaultedList
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.BlockView
@@ -80,8 +79,6 @@ class Bookcase(settings: Settings) : BlockWithEntity(settings) {
 class BookcaseEntity : BlockEntity(BlockEntities.BOOKCASE_BLOCK_ENTITY) {
     val inventory = BookcaseInventory()
 
-    override fun markDirty() = Unit
-
     override fun fromTag(state: BlockState?, tag: CompoundTag?) {
         super.fromTag(state, tag)
         Inventories.fromTag(tag, this.inventory.getItems())
@@ -89,8 +86,7 @@ class BookcaseEntity : BlockEntity(BlockEntities.BOOKCASE_BLOCK_ENTITY) {
 
     override fun toTag(tag: CompoundTag): CompoundTag {
         super.toTag(tag)
-        Inventories.toTag(tag, this.inventory.getItems())
-        return tag
+        return Inventories.toTag(tag, this.inventory.getItems())
     }
 
     fun getTomesInside(): List<ItemStack> {

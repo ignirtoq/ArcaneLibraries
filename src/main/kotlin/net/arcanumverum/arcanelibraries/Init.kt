@@ -48,106 +48,118 @@ import net.minecraft.item.BlockItem
 
 
 object Blocks {
-    val BOOKCASE = Registry.register(
-        Registry.BLOCK,
-        Constants.BOOKCASE_BLOCK_IDENTIFIER,
-        Bookcase(FabricBlockSettings.copyOf(MinecraftBlocks.CHEST)))
-    val ELDRITCH_LOG = Registry.register(
-        Registry.BLOCK,
-        Constants.ELDRITCH_LOG_IDENTIFIER,
-        PillarBlock(FabricBlockSettings.of(Material.WOOD).hardness(2.0f)))
-    val ELDRITCH_PLANKS = Registry.register(
-        Registry.BLOCK,
-        Constants.ELDRITCH_PLANKS_IDENTIFIER,
-        Block(FabricBlockSettings.of(Material.WOOD).hardness(2.0f)))
-    val ELDRITCH_SLAB = Registry.register(
-        Registry.BLOCK,
-        Constants.ELDRITCH_SLAB_IDENTIFIER,
-        SlabBlock(FabricBlockSettings.of(Material.WOOD).hardness(2.0f)))
-
-    val INK = Registry.register(
-        Registry.BLOCK,
-        Constants.INK_FLUID_BLOCK_IDENTIFIER,
-        object : FluidBlock(Fluids.STILL_INK, FabricBlockSettings.copy(MinecraftBlocks.WATER)){}
-    )
+    var BOOKCASE: Block = Bookcase(FabricBlockSettings.copyOf(MinecraftBlocks.CHEST))
+    var ELDRITCH_LOG: Block = PillarBlock(FabricBlockSettings.of(Material.WOOD).hardness(2.0f))
+    var ELDRITCH_PLANKS: Block = Block(FabricBlockSettings.of(Material.WOOD).hardness(2.0f))
+    var ELDRITCH_SLAB: Block = SlabBlock(FabricBlockSettings.of(Material.WOOD).hardness(2.0f))
+    var INK: Block = object : FluidBlock(Fluids.STILL_INK, FabricBlockSettings.copy(MinecraftBlocks.WATER)){}
 }
 
 
 object BlockEntities {
-    val BOOKCASE_BLOCK_ENTITY = Registry.register(
-        Registry.BLOCK_ENTITY_TYPE,
-        Constants.BOOKCASE_BLOCK_IDENTIFIER,
-        BlockEntityType.Builder.create(::BookcaseEntity, Blocks.BOOKCASE).build(null))
+    var BOOKCASE_BLOCK_ENTITY: BlockEntityType<BookcaseEntity> = BlockEntityType.Builder.create(
+        ::BookcaseEntity,
+        Blocks.BOOKCASE
+    ).build(null)
 }
 
 
 object Fluids {
-    val STILL_INK: InkFluid.Still = Registry.register(Registry.FLUID, Constants.STILL_INK_IDENTIFIER, InkFluid.Still())
-    val FLOWING_INK: InkFluid.Flowing = Registry.register(Registry.FLUID, Constants.FLOWING_INK_IDENTIFIER, InkFluid.Flowing())
+    var STILL_INK: InkFluid.Still = InkFluid.Still()
+    var FLOWING_INK: InkFluid.Flowing = InkFluid.Flowing()
 }
 
 
 object Items {
-    val INK_VIAL = InkVialItem(FabricItemSettings().group(ItemGroup.MISC).maxCount(1))
-    val SCRIBING_TOOLS = ScribingToolsItem(FabricItemSettings().group(ItemGroup.MISC).maxCount(1))
-    val ARCANE_TOME = ArcaneTomeItem(FabricItemSettings().group(ItemGroup.MISC).maxCount(1))
-    val ALL_SEEING_EYE = Item(FabricItemSettings().group(ItemGroup.MISC))
-    val CODEX_OF_SIGHT = CodexOfSight(FabricItemSettings().group(ItemGroup.MISC).maxCount(1))
+    var INK_VIAL: Item = InkVialItem(FabricItemSettings().group(ItemGroup.MISC).maxCount(1))
+    var SCRIBING_TOOLS: Item = ScribingToolsItem(FabricItemSettings().group(ItemGroup.MISC).maxCount(1))
+    var ARCANE_TOME: Item = ArcaneTomeItem(FabricItemSettings().group(ItemGroup.MISC).maxCount(1))
+    var ALL_SEEING_EYE: Item = Item(FabricItemSettings().group(ItemGroup.MISC))
+    var CODEX_OF_SIGHT: Item = CodexOfSight(FabricItemSettings().group(ItemGroup.MISC).maxCount(1))
 
     // Fluid buckets
-   val INK_BUCKET: BucketItem = Registry.register(
-       Registry.ITEM,
-       Constants.INK_BUCKET_IDENTIFIER,
-       BucketItem(
-           Fluids.STILL_INK,
-           Item.Settings().recipeRemainder(MinecraftItems.BUCKET).group(ItemGroup.MISC).maxCount(1)))
+   var INK_BUCKET: BucketItem = BucketItem(
+        Fluids.STILL_INK,
+        Item.Settings().recipeRemainder(MinecraftItems.BUCKET).group(ItemGroup.MISC).maxCount(1))
 
     // Block items
-    val BOOKCASE_ITEM = Registry.register(
-        Registry.ITEM,
-        Constants.BOOKCASE_BLOCK_IDENTIFIER,
-        BlockItem(Blocks.BOOKCASE, Item.Settings().group(ItemGroup.MISC)))
-    val ELDRITCH_LOG_ITEM = Registry.register(
-        Registry.ITEM,
-        Constants.ELDRITCH_LOG_IDENTIFIER,
-        BlockItem(Blocks.ELDRITCH_LOG, Item.Settings().group(ItemGroup.MISC)))
-    val ELDRITCH_PLANKS_ITEM = Registry.register(
-        Registry.ITEM,
-        Constants.ELDRITCH_PLANKS_IDENTIFIER,
-        BlockItem(Blocks.ELDRITCH_PLANKS, Item.Settings().group(ItemGroup.MISC)))
-    val ELDRITCH_SLAB_ITEM = Registry.register(
-        Registry.ITEM,
-        Constants.ELDRITCH_SLAB_IDENTIFIER,
-        BlockItem(Blocks.ELDRITCH_SLAB, Item.Settings().group(ItemGroup.MISC)))
+    var BOOKCASE_ITEM: Item = BlockItem(Blocks.BOOKCASE, Item.Settings().group(ItemGroup.MISC))
+    var ELDRITCH_LOG_ITEM: Item = BlockItem(Blocks.ELDRITCH_LOG, Item.Settings().group(ItemGroup.MISC))
+    var ELDRITCH_PLANKS_ITEM: Item = BlockItem(Blocks.ELDRITCH_PLANKS, Item.Settings().group(ItemGroup.MISC))
+    var ELDRITCH_SLAB_ITEM: Item = BlockItem(Blocks.ELDRITCH_SLAB, Item.Settings().group(ItemGroup.MISC))
 }
 
 
 object Screens {
-    val ARCANE_TOME_SCREEN_HANDLER: ScreenHandlerType<ArcaneTomeScreenHandler> = ScreenHandlerRegistry.registerExtended(
-        Constants.ARCANE_TOME_IDENTIFIER, ::ArcaneTomeScreenHandler)
-    val CODEX_SCREEN_HANDLER: ScreenHandlerType<CodexScreenHandler> = ScreenHandlerRegistry.registerExtended(
-        Constants.CODEX_OF_SIGHT_IDENTIFIER, ::CodexScreenHandler)
-    val BOOKCASE_SCREEN_HANDLER: ScreenHandlerType<BookcaseScreenHandler> = ScreenHandlerRegistry.registerSimple(
-        Constants.BOOKCASE_BLOCK_IDENTIFIER, ::BookcaseScreenHandler)
+    var ARCANE_TOME_SCREEN_HANDLER: ScreenHandlerType<ArcaneTomeScreenHandler>? = null
+    var CODEX_SCREEN_HANDLER: ScreenHandlerType<CodexScreenHandler>? = null
+    var BOOKCASE_SCREEN_HANDLER: ScreenHandlerType<BookcaseScreenHandler>? = null
 }
 
 
-fun loadItems() {
-    Registry.register(Registry.ITEM, Constants.INK_VIAL_IDENTIFIER, Items.INK_VIAL)
-    Registry.register(Registry.ITEM, Constants.SCRIBING_TOOLS_IDENTIFIER, Items.SCRIBING_TOOLS)
-    Registry.register(Registry.ITEM, Constants.ARCANE_TOME_IDENTIFIER, Items.ARCANE_TOME)
-    Registry.register(Registry.ITEM, Constants.ALL_SEEING_EYE_IDENTIFIER, Items.ALL_SEEING_EYE)
-    Registry.register(Registry.ITEM, Constants.CODEX_OF_SIGHT_IDENTIFIER, Items.CODEX_OF_SIGHT)
+fun registerBlocks() {
+    Blocks.BOOKCASE = Registry.register(Registry.BLOCK, Constants.BOOKCASE_BLOCK_IDENTIFIER, Blocks.BOOKCASE)
+    Blocks.ELDRITCH_LOG = Registry.register(Registry.BLOCK, Constants.ELDRITCH_LOG_IDENTIFIER, Blocks.ELDRITCH_LOG)
+    Blocks.ELDRITCH_PLANKS = Registry.register(Registry.BLOCK, Constants.ELDRITCH_PLANKS_IDENTIFIER, Blocks.ELDRITCH_PLANKS)
+    Blocks.ELDRITCH_SLAB = Registry.register(Registry.BLOCK, Constants.ELDRITCH_SLAB_IDENTIFIER, Blocks.ELDRITCH_SLAB)
+
+    Blocks.INK = Registry.register(Registry.BLOCK, Constants.INK_FLUID_BLOCK_IDENTIFIER, Blocks.INK)
+}
+
+
+fun registerBlockEntities() {
+    BlockEntities.BOOKCASE_BLOCK_ENTITY = Registry.register(
+        Registry.BLOCK_ENTITY_TYPE,
+        Constants.BOOKCASE_BLOCK_IDENTIFIER,
+        BlockEntities.BOOKCASE_BLOCK_ENTITY
+    )}
+
+
+fun registerFluids() {
+    Fluids.STILL_INK = Registry.register(Registry.FLUID, Constants.STILL_INK_IDENTIFIER, Fluids.STILL_INK)
+    Fluids.FLOWING_INK = Registry.register(Registry.FLUID, Constants.FLOWING_INK_IDENTIFIER, Fluids.FLOWING_INK)
+}
+
+
+fun registerItems() {
+    Items.INK_VIAL = Registry.register(Registry.ITEM, Constants.INK_VIAL_IDENTIFIER, Items.INK_VIAL)
+    Items.SCRIBING_TOOLS = Registry.register(Registry.ITEM, Constants.SCRIBING_TOOLS_IDENTIFIER, Items.SCRIBING_TOOLS)
+    Items.ARCANE_TOME = Registry.register(Registry.ITEM, Constants.ARCANE_TOME_IDENTIFIER, Items.ARCANE_TOME)
+    Items.ALL_SEEING_EYE = Registry.register(Registry.ITEM, Constants.ALL_SEEING_EYE_IDENTIFIER, Items.ALL_SEEING_EYE)
+    Items.CODEX_OF_SIGHT = Registry.register(Registry.ITEM, Constants.CODEX_OF_SIGHT_IDENTIFIER, Items.CODEX_OF_SIGHT)
+
+    // Fluid buckets
+    Items.INK_BUCKET = Registry.register(Registry.ITEM, Constants.INK_BUCKET_IDENTIFIER, Items.INK_BUCKET)
+
+    // Block items
+    Items.BOOKCASE_ITEM = Registry.register(Registry.ITEM, Constants.BOOKCASE_BLOCK_IDENTIFIER, Items.BOOKCASE_ITEM)
+    Items.ELDRITCH_LOG_ITEM = Registry.register(Registry.ITEM, Constants.ELDRITCH_LOG_IDENTIFIER, Items.ELDRITCH_LOG_ITEM)
+    Items.ELDRITCH_PLANKS_ITEM = Registry.register(Registry.ITEM, Constants.ELDRITCH_PLANKS_IDENTIFIER, Items.ELDRITCH_PLANKS_ITEM)
+    Items.ELDRITCH_SLAB_ITEM = Registry.register(Registry.ITEM, Constants.ELDRITCH_SLAB_IDENTIFIER, Items.ELDRITCH_SLAB_ITEM)
+}
+
+
+fun registerScreens() {
+    Screens.ARCANE_TOME_SCREEN_HANDLER = ScreenHandlerRegistry.registerExtended(
+        Constants.ARCANE_TOME_IDENTIFIER, ::ArcaneTomeScreenHandler)
+    Screens.CODEX_SCREEN_HANDLER = ScreenHandlerRegistry.registerExtended(
+        Constants.CODEX_OF_SIGHT_IDENTIFIER, ::CodexScreenHandler)
+    Screens.BOOKCASE_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(
+        Constants.BOOKCASE_BLOCK_IDENTIFIER, ::BookcaseScreenHandler)
 }
 
 
 @Suppress("unused")
 fun init() {
-    loadItems()
+    registerBlocks()
+    registerBlockEntities()
+    registerFluids()
+    registerItems()
+    registerScreens()
 }
 
 
-fun setupFluidRendering(still: Fluid, flowing: Fluid, textureFluidId: Identifier, color: Int) {
+fun setupFluidRendering(still: Fluid?, flowing: Fluid?, textureFluidId: Identifier, color: Int) {
     val stillSpriteId = Identifier(textureFluidId.namespace, "block/" + textureFluidId.path.toString() + "_still")
     val flowingSpriteId = Identifier(textureFluidId.namespace, "block/" + textureFluidId.path.toString() + "_flow")
 
