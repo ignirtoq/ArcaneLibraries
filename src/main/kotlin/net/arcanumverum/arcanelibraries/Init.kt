@@ -40,6 +40,7 @@ import net.arcanumverum.arcanelibraries.items.ArcaneTomeItem
 import net.arcanumverum.arcanelibraries.items.CodexOfSight
 import net.arcanumverum.arcanelibraries.items.InkVialItem
 import net.arcanumverum.arcanelibraries.items.ScribingToolsItem
+import net.arcanumverum.arcanelibraries.network.initTomePageDataNetworking
 import net.arcanumverum.arcanelibraries.screens.*
 import net.minecraft.block.*
 import net.minecraft.block.entity.BlockEntityType
@@ -207,4 +208,11 @@ fun initClient() {
     ScreenRegistry.register(Screens.CODEX_SCREEN_HANDLER, ::CodexScreen)
     ScreenRegistry.register(Screens.BOOKCASE_SCREEN_HANDLER, ::BookcaseScreen)
     setupInk()
+}
+
+
+@Environment(EnvType.SERVER)
+@Suppress("unused")
+fun initServer() {
+    initTomePageDataNetworking()
 }

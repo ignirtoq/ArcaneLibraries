@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 
 import net.arcanumverum.arcanelibraries.Constants
 import net.arcanumverum.arcanelibraries.inventories.TomeInventory
+import net.arcanumverum.arcanelibraries.network.sendPageData
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.client.gui.widget.TexturedButtonWidget
 import net.minecraft.client.util.math.MatrixStack
@@ -12,11 +13,14 @@ import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.Inventory
 import net.minecraft.item.Items
 import net.minecraft.item.ItemStack
+import net.minecraft.network.PacketByteBuf
 import net.minecraft.screen.ScreenHandler
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.screen.slot.Slot
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
+import java.lang.ref.WeakReference
+import java.util.*
 
 
 val TOME_TEXTURE = Identifier(Constants.MOD_ID, Constants.TOME_GUI_TEXTURE_PATH)
@@ -41,14 +45,64 @@ val LEFT_BUTTON = Pair(31, 149)
 val RIGHT_BUTTON = Pair(193, 149)
 
 
+object ActiveData {
+    private val data = HashMap<UUID, Data>()
+
+    fun addTome(handler: PaginatedTomeScreen, id: String? = null, page: Int = 0): String {
+        val tomeId = getNewId(id)
+        data[tomeId] = Data(WeakReference(handler), page)
+        return tomeId.toString()
+    }
+
+    fun getPage(id: String): Int = data[UUID.fromString(id)]!!.page
+
+    fun setPage(id: String, page: Int) {
+        val uuid = UUID.fromString(id)
+        if (uuid !in data) return
+        val tomeData = data[uuid]!!
+
+        tomeData.page = page
+        tomeData.handler.get()?.updateTomeSlots()
+    }
+
+    private fun getNewId(id: String?): UUID {
+        if (id != null) return UUID.fromString(id)
+
+        do {
+            val tomeId = UUID.randomUUID()
+            if (tomeId !in data) return tomeId
+        } while (true)
+    }
+
+    private class Data(val handler: WeakReference<PaginatedTomeScreen>, var page: Int = 0)
+
+    interface PaginatedTomeScreen {
+        fun updateTomeSlots()
+    }
+}
+
+
+fun readPageDataFromBuf(buf: PacketByteBuf): String = buf.readString()
+
+
+fun writePageDataToBuf(pageDataId: String, buf: PacketByteBuf) {
+    buf.writeString(pageDataId)
+}
+
+
 open class TomeScreenHandler<R : ScreenHandler, T : ScreenHandlerType<R>>(
     handlerType: T,
     syncId: Int,
     inv: PlayerInventory,
+    pageDataId: String?,
     vararg tomes: ItemStack
-) : BaseScreenHandler<R, T>(handlerType, syncId) {
+) : BaseScreenHandler<R, T>(handlerType, syncId), ActiveData.PaginatedTomeScreen {
     private val tomeInventory = TomeInventory(*tomes)
-    private var page: Int = 0
+    val pageDataId = ActiveData.addTome(this, pageDataId)
+    private var world = inv.player.world
+    private var page: Int
+        get() = ActiveData.getPage(pageDataId)
+        set(value) = ActiveData.setPage(pageDataId, value)
 
     init {
         addTomeSlots()
@@ -66,21 +120,25 @@ open class TomeScreenHandler<R : ScreenHandler, T : ScreenHandlerType<R>>(
         loopOverSlots { slotIndex, x, y -> addSlot(createSlot(slotIndex, x, y)) }
     }
 
-    private fun updateTomeSlots() {
+    override fun updateTomeSlots() {
         val startIndex = page * TOME_SLOTS
-        loopOverSlots { slotIndex, x, y -> slots[slotIndex] = createSlot(slotIndex + startIndex, x, y) }
+        loopOverSlots { slotIndex, x, y ->
+            val newSlot = createSlot(slotIndex + startIndex, x, y)
+            newSlot.id = slotIndex
+            slots[slotIndex] = newSlot
+        }
     }
 
     fun nextPage() {
         if (!hasMorePages()) return
         page += 1
-        updateTomeSlots()
+        if (world.isClient) sendPageData(pageDataId, page)
     }
 
     fun previousPage() {
         if (onFirstPage()) return
         page -= 1
-        updateTomeSlots()
+        if (world.isClient) sendPageData(pageDataId, page)
     }
 
     fun hasMorePages(): Boolean = (page + 1) * TOME_SLOTS < tomeInventory.size()
@@ -224,13 +282,13 @@ open class TomeScreen<R: ScreenHandler, S: ScreenHandlerType<R>, T : TomeScreenH
 }
 
 
-class TomeSlot(private val inv: TomeInventory, private val index: Int, x: Int, y: Int) : Slot(inv, index, x, y) {
+class TomeSlot(private val inv: TomeInventory, private val index: Int, x: Int, y: Int) : BaseSlot(inv, index, x, y) {
     override fun getMaxItemCount() = inv.getMaxCount(index)
     override fun getMaxItemCount(stack: ItemStack): Int = this.maxItemCount
 }
 
 
-class DisabledTomeSlot(x: Int, y: Int) : Slot(null, 0, x, y) {
+class DisabledTomeSlot(x: Int, y: Int) : BaseSlot(null, 0, x, y) {
     companion object {
         val BARRIER = ItemStack(Items.BARRIER, 1)
     }

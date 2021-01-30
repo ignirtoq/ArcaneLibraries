@@ -47,8 +47,12 @@ fun buildTomes(buf: PacketByteBuf): Array<ItemStack> {
 
 
 class CodexScreenHandlerFactory(private val bookcase: BookcaseEntity) : ExtendedScreenHandlerFactory {
+    var pageDataId: String? = null
+
     override fun createMenu(syncId: Int, inv: PlayerInventory, player: PlayerEntity?): ScreenHandler {
-        return CodexScreenHandler(syncId, inv, *bookcase.getTomesInside().toTypedArray())
+        val handler = CodexScreenHandler(syncId, inv, pageDataId, *bookcase.getTomesInside().toTypedArray())
+        pageDataId = handler.pageDataId
+        return handler
     }
 
     override fun getDisplayName(): Text {
@@ -56,6 +60,7 @@ class CodexScreenHandlerFactory(private val bookcase: BookcaseEntity) : Extended
     }
 
     override fun writeScreenOpeningData(player: ServerPlayerEntity, buf: PacketByteBuf) {
+        writePageDataToBuf(pageDataId!!, buf)
         writeTiers(buf, getTomes(player.inventory, bookcase.pos))
     }
 }
@@ -64,11 +69,16 @@ class CodexScreenHandlerFactory(private val bookcase: BookcaseEntity) : Extended
 class CodexScreenHandler(
     syncId: Int,
     inv: PlayerInventory,
+    pageDataId: String?,
     vararg tomes: ItemStack
 ) : TomeScreenHandler<CodexScreenHandler, ScreenHandlerType<CodexScreenHandler>>(
-    Screens.CODEX_SCREEN_HANDLER, syncId, inv, *tomes
+    Screens.CODEX_SCREEN_HANDLER, syncId, inv, pageDataId, *tomes
 ) {
-    constructor (sync_id: Int, inv: PlayerInventory, buf: PacketByteBuf) : this(sync_id, inv, *buildTomes(buf))
+    constructor (
+        sync_id: Int, inv: PlayerInventory, buf: PacketByteBuf
+    ) : this(
+        sync_id, inv, readPageDataFromBuf(buf), *buildTomes(buf)
+    )
 }
 
 

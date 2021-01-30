@@ -133,7 +133,7 @@ interface SwapAction {
         playerEntity: PlayerEntity?,
     ) {
         val playerInventory = playerEntity!!.inventory
-        val wrappedSlot = slot as WrapperSlot
+        val wrappedSlot = slot as BaseSlot
         val slotStack = slot.stack
 
         if (slot.canTakeItems(playerEntity)) {
@@ -442,14 +442,14 @@ abstract class BaseScreenHandler<R : ScreenHandler, T : ScreenHandlerType<R>>(
     protected fun addPlayerInventorySlots(inv: PlayerInventory, firstSlotX: Int, firstSlotY: Int) {
         for (row: Int in 0 until 3) {
             for (col: Int in 0 until 9) {
-                addSlot(Slot(inv, col + row*9 + 9, firstSlotX + col*SLOT_WIDTH, firstSlotY + row*SLOT_HEIGHT))
+                addSlot(BaseSlot(inv, col + row*9 + 9, firstSlotX + col*SLOT_WIDTH, firstSlotY + row*SLOT_HEIGHT))
             }
         }
     }
 
     protected fun addPlayerHotbarSlots(inv: PlayerInventory, firstSlotX: Int, firstSlotY: Int) {
         for (col: Int in 0 until 9) {
-            addSlot(Slot(inv, col, firstSlotX + col*SLOT_WIDTH, firstSlotY))
+            addSlot(BaseSlot(inv, col, firstSlotX + col*SLOT_WIDTH, firstSlotY))
         }
     }
 
@@ -479,9 +479,4 @@ abstract class BaseScreenHandler<R : ScreenHandler, T : ScreenHandlerType<R>>(
 
         return newStack;
     }
-}
-
-
-class WrapperSlot(inv: Inventory, index: Int, x: Int, y: Int) : Slot(inv, index, x, y) {
-    fun publicOnTake(amount: Int) = super.onTake(amount)
 }
